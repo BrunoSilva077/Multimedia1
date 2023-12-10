@@ -33,13 +33,13 @@
 
 #define	GAP					              25
 
-#define	OBJETO_ALTURA		        0.5
+#define	OBJETO_ALTURA		        0.4
 #define OBJETO_VELOCIDADE	      0.5
-#define OBJETO_ROTACAO		        5
+#define OBJETO_ROTACAO		        1
 #define OBJETO_RAIO		          0.12
 #define EYE_ROTACAO			          1
 
-#define NOME_TEXTURA_CHAO         "C:\\Users\\User\\Desktop\\UFP\\Git-Hub\\Multimedia1\\template_projeto\\data\\chao.ppm"
+#define NOME_TEXTURA_CHAO         "C:\\Users\\User\\Desktop\\UFP\\Git-Hub\\Multimedia1\\template_projeto\\data\\Tileable-Road-Texture.ppm"
 
 #define NUM_TEXTURAS              1
 #define ID_TEXTURA_CHAO           0
@@ -57,7 +57,7 @@
 **************************************/
 
 typedef struct {
-  GLboolean   up,down,left,right;
+  GLboolean   up,down,left,right,a,d;
 } Teclas;
 
 typedef struct {
@@ -101,8 +101,6 @@ typedef struct {
 Estado estado;
 Modelo modelo;
 GLMmodel* pmodel = NULL;
-GLboolean world_draw = GL_TRUE;
-
 
 
 /**************************************
@@ -151,9 +149,8 @@ void init(void)
   estado.timer = 100;
 
   estado.camera.eye.x = 0;
-  estado.camera.eye.y = OBJETO_ALTURA * 5;
+  estado.camera.eye.y = OBJETO_ALTURA * 2;
   estado.camera.eye.z = 0;
-
   estado.camera.dir_long = 0;
   estado.camera.dir_lat = 0;
   estado.camera.fov = 60;
@@ -283,17 +280,31 @@ void desenhaAngVisao(Camera *cam)
     glDisable(GL_BLEND);
 }
 
-// void desenhaModelo()
-// {
-//     glColor3f(0,1,0);
-//     glutSolidCube(OBJETO_ALTURA);
-//     glPushMatrix();
-//         glColor3f(1,0,0);
-//         glTranslatef(0,OBJETO_ALTURA*0.75,0);
-//         glRotatef(GRAUS(estado.camera.dir_long-modelo.objeto.dir),0,1,0);
-//         glutSolidCube(OBJETO_ALTURA*0.5);
-//     glPopMatrix();
-// }
+void desenhaModelo()
+{
+    glColor3f(0,1,0);
+    glutSolidCube(OBJETO_ALTURA);
+    glPushMatrix();
+        glColor3f(1,0,0);
+        glTranslatef(0,OBJETO_ALTURA*0.75,0);
+        glRotatef(GRAUS(estado.camera.dir_long-modelo.objeto.dir),0,1,0);
+        glutSolidCube(OBJETO_ALTURA*0.5);
+    glPopMatrix();
+}
+
+void drawmodel(void)
+{
+    if (!pmodel) {
+        pmodel = glmReadOBJ("C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/porsche.obj");
+        if (!pmodel) exit(0);
+        glmUnitize(pmodel);
+        glmFacetNormals(pmodel);
+        glmVertexNormals(pmodel, 90.0);
+    }
+    
+    glmDraw(pmodel, GLM_SMOOTH | GLM_MATERIAL);
+}
+
 
 void desenhaChao(GLfloat dimensao, GLuint texID)
 {
@@ -343,12 +354,24 @@ void setNavigateSubwindowCamera(Camera *cam, Objeto obj)
     if(estado.vista[JANELA_NAVIGATE])
     {
   */
-    cam->eye.x=obj.pos.x-1;
-    cam->eye.y=obj.pos.y+1;
-    cam->eye.z=obj.pos.z-1;
-    center.x=obj.pos.x;
-    center.y=obj.pos.y+.2;
-    center.z=obj.pos.z;
+    // cam->eye.x=obj.pos.x-2;
+    // cam->eye.y=obj.pos.y+.9;
+    // cam->eye.z=obj.pos.z;
+    // center.x=obj.pos.x;
+    // center.y=obj.pos.y+.9;
+    // center.z=obj.pos.z;
+
+    // Ajustar a distância da câmera diretamente no cálculo
+    GLfloat distanceFromObject = 2.0f;
+    cam->eye.x = obj.pos.x - distanceFromObject * cos(obj.dir);
+    cam->eye.y = obj.pos.y + 0.9f;
+    cam->eye.z = obj.pos.z - distanceFromObject * sin(obj.dir);
+
+    // Ajustar o ponto de vista da câmera (olhar para o objeto)
+    center.x = obj.pos.x;
+    center.y = obj.pos.y + 0.9f;
+    center.z = obj.pos.z;
+
   /*
     }
     else
@@ -376,6 +399,16 @@ void displayNavigateSubwindow()
 	if(!estado.vista[JANELA_NAVIGATE])
   {
 
+    // glPushMatrix();
+    //         glTranslatef(modelo.objeto.pos.x+2,modelo.objeto.pos.y+0.3,modelo.objeto.pos.z);
+    //         // glRotatef(GRAUS(modelo.objeto.dir),0,1,0);
+    //         // glRotatef(90,0,1,0);
+    //       GLfloat light_pos2[] = { 0.0, 2.0, -1.0, 0.0 };
+    //       glLightfv(GL_LIGHT0, GL_POSITION, light_pos2);
+
+    //       desenhaModelo();
+          
+    // glPopMatrix();
 
     glPushMatrix();
         glTranslatef(modelo.objeto.pos.x,modelo.objeto.pos.y+0.3,modelo.objeto.pos.z);
@@ -387,18 +420,17 @@ void displayNavigateSubwindow()
           GLfloat light_pos[] = { 0.0, 2.0, -1.0, 0.0 };
           glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
 
-          // desenhaModelo();  
-        if (world_draw) {
-          glEnable(GL_LIGHTING);
-          drawmodel();
-          glDisable(GL_LIGHTING);
-        }
+          // desenhaModelo();
+            drawmodel();
 
-        glPopMatrix();      
+        glPopMatrix();
+
         
         glDisable(GL_LIGHTING);
         
     glPopMatrix();
+
+
   }
 
 	glutSwapBuffers();
@@ -463,20 +495,6 @@ void displayMainWindow()
 }
 
 
-void
-drawmodel(void)
-{
-    if (!pmodel) {
-        pmodel = glmReadOBJ("C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/porsche.obj");
-        if (!pmodel) exit(0);
-        glmUnitize(pmodel);
-        glmFacetNormals(pmodel);
-        glmVertexNormals(pmodel, 90.0);
-    }
-    
-    glmDraw(pmodel, GLM_SMOOTH | GLM_MATERIAL);
-}
-
 /**************************************
 ******** CALLBACKS TIME/IDLE **********
 **************************************/
@@ -498,43 +516,67 @@ void timer(int value)
 
   modelo.prev = curr;
 
-
-
   if(estado.teclas.up)
   {
     andar=GL_TRUE;
-    nx+=velocidade*cos(RAD(modelo.objeto.dir));
-    nz-=velocidade*sin(RAD(modelo.objeto.dir));   
+    modelo.objeto.pos.x+=velocidade*cos(RAD(modelo.objeto.dir));
+    modelo.objeto.pos.z-=velocidade*sin(RAD(modelo.objeto.dir));  
 	}
 	
   if(estado.teclas.down){
     andar=GL_TRUE;
-    nx-=velocidade*cos(RAD(modelo.objeto.dir));
-    nz+=velocidade*sin(RAD(modelo.objeto.dir));
+    modelo.objeto.pos.x-=velocidade*cos(RAD(modelo.objeto.dir));
+    modelo.objeto.pos.z+=velocidade*sin(RAD(modelo.objeto.dir));
 	}
-    modelo.objeto.pos.x+=nx;
-    modelo.objeto.pos.z+=nz;
-    modelo.chao[JANELA_NAVIGATE]=modelo.mapa[JANELA_NAVIGATE];
 	
   if(estado.teclas.left){
     // rodar camara e objeto
-      modelo.objeto.dir += OBJETO_ROTACAO;
-    estado.camera.dir_long += EYE_ROTACAO;
-    estado.camera.dir_lat += EYE_ROTACAO;
+    
 
+      modelo.objeto.dir += OBJETO_ROTACAO;
+      // estado.camera.dir_long += EYE_ROTACAO;
+      modelo.objeto.pos.x+=velocidade*cos(RAD(modelo.objeto.dir));
+      modelo.objeto.pos.z-=velocidade*sin(RAD(modelo.objeto.dir));
+
+    printf("dir left: %f %f\n", modelo.objeto.dir, estado.camera.dir_long);
+
+    
+    // modelo.objeto.pos.x -=0.5;
+    // modelo.objeto.pos.z -=0.5;
   }
 	if(estado.teclas.right){
-    // rodar camara e objeto
-     modelo.objeto.dir -= OBJETO_ROTACAO;
-    estado.camera.dir_long -= EYE_ROTACAO;
-    estado.camera.dir_lat -= EYE_ROTACAO;
+    // rodar camara e 
+    
+      modelo.objeto.dir -= OBJETO_ROTACAO;
+      // estado.camera.dir_long -= EYE_ROTACAO;
+      modelo.objeto.pos.x+=velocidade*cos(RAD(modelo.objeto.dir));
+      modelo.objeto.pos.z-=velocidade*sin(RAD(modelo.objeto.dir));
+
+    
+    printf("dir rigth: %f %f\n", modelo.objeto.dir, estado.camera.dir_long);
+
+    // modelo.objeto.pos.x +=0.5;
+    // modelo.objeto.pos.z +=0.5;
 	}
 
-    modelo.objeto.dir = fmod(modelo.objeto.dir, 360);
-  estado.camera.dir_long = fmod(estado.camera.dir_long, 360);
-  estado.camera.dir_lat = fmod(estado.camera.dir_lat, 360);
+  if(estado.teclas.a){
+    estado.camera.dir_long += EYE_ROTACAO;
+    // estado.camera.eye.x -= 0.1;
+    // estado.camera.eye.z -= 0.1;
 
-  
+    
+  }
+
+  if(estado.teclas.d){
+    estado.camera.dir_long -= EYE_ROTACAO;
+    // estado.camera.eye.x += 0.1;
+    // estado.camera.eye.z += 0.1;
+    
+  }
+
+    //   GLfloat camera_angle = RAD(estado.camera.dir_long);
+    // estado.camera.eye.x = modelo.objeto.pos.x + cos(camera_angle);
+    // estado.camera.eye.z = modelo.objeto.pos.z + sin(camera_angle);
 
   redisplayAll();
 }
@@ -545,7 +587,7 @@ void timer(int value)
 
 void imprime_ajuda(void)
 {
-  printf("/n\nProjeto MUL1\n");
+  printf("\n\nProjeto MUL1\n");
   printf("h,H   - Ajuda \n");
   printf("******* Diversos ******* \n");
   printf("l,L   - Alterna o calculo luz entre Z e eye (GL_LIGHT_MODEL_LOCAL_VIEWER)\n");
@@ -600,6 +642,16 @@ void key(unsigned char key, int x, int y)
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             glEnable(GL_TEXTURE_2D);
             break;
+    
+    case 'a':
+    case 'A':
+        estado.teclas.a = GL_TRUE;
+
+        break;
+    case 'd':
+    case 'D':
+        estado.teclas.d = GL_TRUE;
+        break;        
 	}
 
   if (DEBUG)
@@ -609,6 +661,16 @@ void key(unsigned char key, int x, int y)
 /* Callback para interação via teclado (largar a tecla) */
 void keyUp(unsigned char key, int x, int y)
 {
+  switch (key) {
+    case 'a':
+    case 'A':
+        estado.teclas.a = GL_FALSE;
+        break;
+    case 'd':
+    case 'D':
+        estado.teclas.d = GL_FALSE;
+        break;        
+  }
   if (DEBUG)
     printf("Largou a tecla %c\n", key);
 }
@@ -745,6 +807,7 @@ int main(int argc, char **argv)
   glutTimerFunc(estado.timer, timer, 0);
   glutKeyboardFunc(key);
   glutSpecialFunc(specialKey);
+  glutKeyboardUpFunc(keyUp);
   glutSpecialUpFunc(specialKeyUp);
 
   // criar a sub window topSubwindow
@@ -761,6 +824,7 @@ int main(int argc, char **argv)
   glutTimerFunc(estado.timer, timer, 0);
   glutKeyboardFunc(key);
   glutSpecialFunc(specialKey);
+  glutKeyboardUpFunc(keyUp);
   glutSpecialUpFunc(specialKeyUp);
 
   // criar a sub window navigateSubwindow
@@ -779,6 +843,7 @@ int main(int argc, char **argv)
   glutTimerFunc(estado.timer, timer, 0);
   glutKeyboardFunc(key);
   glutSpecialFunc(specialKey);
+  glutKeyboardUpFunc(keyUp);
   glutSpecialUpFunc(specialKeyUp);
 
   glutMainLoop();
