@@ -4,6 +4,7 @@
 #include <math.h>
 #include <time.h>
 
+
 #define GL_SILENCE_DEPRECATION
 
 #if defined(__APPLE__) || defined(MACOSX)
@@ -106,6 +107,8 @@ Modelo modelo;
 GLMmodel* pmodel = NULL;
 GLint flag=0,flag2=0;
 
+GLint posicoes[20];
+
 /**************************************
 ******* ILUMINAÇÃO E MATERIAIS ********
 **************************************/
@@ -162,7 +165,7 @@ void init(void)
   estado.vista[JANELA_TOP] = 0;
   estado.vista[JANELA_NAVIGATE] = 0;
 
-  modelo.objeto.pos.x = 10;
+  modelo.objeto.pos.x = -195;
   modelo.objeto.pos.y = OBJETO_ALTURA * 0;
   modelo.objeto.pos.z = 0;
   modelo.objeto.dir = 0;
@@ -170,6 +173,14 @@ void init(void)
 
   modelo.xMouse = modelo.yMouse = -1;
   modelo.andar = GL_FALSE;
+
+    srand(time(NULL));
+
+  for (int i = 0; i < 5; i++)
+  {
+    posicoes[i] = (rand() % 5);
+  }
+  
 
   glEnable(GL_DEPTH_TEST);
   glShadeModel(GL_SMOOTH);
@@ -283,14 +294,15 @@ void desenhaAngVisao(Camera *cam)
     glDisable(GL_BLEND);
 }
 
-void desenhaModelo()
+void desenhaModelo(GLfloat x, GLfloat z)
 {
     // glColor3f(0,1,0);
     // glutSolidCube(OBJETO_ALTURA*2.0);
     glPushMatrix();
         // glColor3f(1,0,0);
-        glTranslatef(0,OBJETO_ALTURA*1,0);
+        glTranslatef(x,OBJETO_ALTURA*1,z);
         glRotatef(GRAUS(estado.camera.dir_long-modelo.objeto.dir),0,1,0);
+                glScalef(1, 1, 3);
         glutSolidCube(OBJETO_ALTURA*2.0);
             
             GLfloat material[] = { 0.0, 1.0, 0.0, 1.0 };
@@ -320,9 +332,9 @@ void desenhaChao(GLfloat dimensao, GLuint texID)
     glBindTexture(GL_TEXTURE_2D, texID);
 
     glColor3f(0.5f,0.5f,0.5f);
-    for(i=-dimensao;i<=dimensao;i+=STEP)
+    for(i=-dimensao*20;i<=dimensao*20;i+=STEP)
     {
-      for(j=-dimensao;j<=dimensao;j+=STEP)
+      for(j=-3;j<=3;j+=STEP)
       {
           glBegin(GL_POLYGON);
               glNormal3f(0,1,0);
@@ -403,24 +415,40 @@ void displayNavigateSubwindow()
 
 	glCallList(modelo.mapa[JANELA_NAVIGATE]);
 	glCallList(modelo.chao[JANELA_NAVIGATE]);
-  if(flag2==1){
+  // if(flag2==1){
     
-    glPushMatrix();		
 
-        glTranslatef(modelo.objeto.pos.x,modelo.objeto.pos.y,modelo.objeto.pos.z);
-        glCallList(modelo.mapa[JANELA_NAVIGATE]);
-	      glCallList(modelo.chao[JANELA_NAVIGATE]);
-        glRotatef(GRAUS(modelo.objeto.dir),0,1,0);
-        glRotatef(90,0,1,0);
+  //   staticFloorX = modelo.objeto.pos.x;
+  //   staticFloorZ = modelo.objeto.pos.z;
+
+    
+  //   // glPushMatrix();		
+
+  //   //     glTranslatef(modelo.objeto.pos.x,0,modelo.objeto.pos.z);
+  //   //     glCallList(modelo.mapa[JANELA_NAVIGATE]);
+	//   //     glCallList(modelo.chao[JANELA_NAVIGATE]);
+  //   //     // glRotatef(GRAUS(modelo.objeto.dir),0,1,0);
+  //   //     // glRotatef(90,0,1,0);
   
-    glPopMatrix();
-    // printf("entrou1 %d\n",flag);
-    flag2=0;
-    flag=0;
-  }
+  //   // glPopMatrix();
+  //   flag2=0;
+  //   flag=0;
+  // }
 	if(!estado.vista[JANELA_NAVIGATE])
   {
-glPushMatrix();
+
+//     glPushMatrix();		
+//     glTranslatef(staticFloorX, 0, staticFloorZ);
+//     glCallList(modelo.mapa[JANELA_NAVIGATE]);
+//     glCallList(modelo.chao[JANELA_NAVIGATE]);
+// glPopMatrix();
+
+
+    GLfloat pos = -190.0f;
+    for (int i = 0; i < 10; i++)
+    {
+
+             glPushMatrix();
             // glTranslatef(modelo.objeto.pos.x+2,modelo.objeto.pos.y+0.3,modelo.objeto.pos.z);
             // glRotatef(GRAUS(modelo.objeto.dir),0,1,0);
             // glRotatef(90,0,1,0);
@@ -429,10 +457,26 @@ glPushMatrix();
           GLfloat light_pos2[] = { 0.0, 2.0, -1.0, 0.0 };
           glLightfv(GL_LIGHT0, GL_POSITION, light_pos2);
 
-          desenhaModelo();
+              // glTranslatef(pos, posicoes[0], 0.0);
+
+
+          desenhaModelo(pos,posicoes[i]);
+              // printf("posicao %d\n",posicoes[i]);
+
+          pos += 10;
+          // printf("posicao %f\n",pos);
           
           glDisable(GL_LIGHTING);
     glPopMatrix();
+    }
+    
+
+   
+
+
+
+
+
    
 
     glPushMatrix();
@@ -486,19 +530,21 @@ void displayTopSubwindow()
     glLoadIdentity();
     setTopSubwindowCamera(&estado.camera,modelo.objeto);
     setLight();
-  if(flag==1){
+  // if(flag==1){
+
+    
    
-    glPushMatrix();		
-        glTranslatef(modelo.objeto.pos.x,modelo.objeto.pos.y,modelo.objeto.pos.z);
+  //   glPushMatrix();		
+  //       glTranslatef(modelo.objeto.pos.x,modelo.objeto.pos.y,modelo.objeto.pos.z);
         
-        glRotatef(GRAUS(modelo.objeto.dir),0,1,0);
-        glRotatef(90,0,1,0);
-        glCallList(modelo.mapa[JANELA_TOP]);
-	      glCallList(modelo.chao[JANELA_TOP]);
-    glPopMatrix();
-    // printf("FLAG2 %d\n",flag);
-    flag2=1;
-  }
+  //       glRotatef(GRAUS(modelo.objeto.dir),0,1,0);
+  //       glRotatef(90,0,1,0);
+  //       glCallList(modelo.mapa[JANELA_TOP]);
+	//       glCallList(modelo.chao[JANELA_TOP]);
+  //   glPopMatrix();
+  //   // printf("FLAG2 %d\n",flag);
+  //   flag2=1;
+  // }
 	glCallList(modelo.mapa[JANELA_TOP]);
 	glCallList(modelo.chao[JANELA_TOP]);
 	
@@ -592,6 +638,7 @@ void timer(int value)
     
     // modelo.objeto.pos.x -=0.5;
     modelo.objeto.pos.z -=0.1;
+ 
   }
     if(estado.teclas.right){
     // rodar camara e 
@@ -605,7 +652,14 @@ void timer(int value)
 
     // modelo.objeto.pos.x +=0.5;
     modelo.objeto.pos.z +=0.1;
+    printf("pos %f %f\n",modelo.objeto.pos.x,modelo.objeto.pos.z);
+
     }
+
+         if(modelo.objeto.pos.z <= -2.7f || modelo.objeto.pos.z >= 3.69f || modelo.objeto.pos.x <= -200.0f){
+        modelo.objeto.pos.z = 0.0f;
+        modelo.objeto.pos.x = -195.0f;
+      }
 
   if(estado.teclas.a){
     estado.camera.dir_long += EYE_ROTACAO;
