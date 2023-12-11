@@ -34,12 +34,14 @@
 #define	GAP					              25
 
 #define	OBJETO_ALTURA		        0.4
-#define OBJETO_VELOCIDADE	      0.5
-#define OBJETO_ROTACAO		        1
+#define OBJETO_VELOCIDADE	      10
+#define OBJETO_ROTACAO		      0.1
 #define OBJETO_RAIO		          0.12
-#define EYE_ROTACAO			          1
+#define EYE_ROTACAO			        0.1
 
-#define NOME_TEXTURA_CHAO         "C:\\Users\\User\\Desktop\\UFP\\Git-Hub\\Multimedia1\\template_projeto\\data\\Tileable-Road-Texture.ppm"
+#define NOME_TEXTURA_CHAO     "C:/Github/Multimedia1/template_projeto/data/Tileable-Road-Texture.ppm"    
+// "C:\\Users\\User\\Desktop\\UFP\\Git-Hub\\Multimedia1\\template_projeto\\data\\Tileable-Road-Texture.ppm"
+
 
 #define NUM_TEXTURAS              1
 #define ID_TEXTURA_CHAO           0
@@ -101,7 +103,7 @@ typedef struct {
 Estado estado;
 Modelo modelo;
 GLMmodel* pmodel = NULL;
-
+GLint flag=0;
 
 /**************************************
 ******* ILUMINAÇÃO E MATERIAIS ********
@@ -159,8 +161,8 @@ void init(void)
   estado.vista[JANELA_TOP] = 0;
   estado.vista[JANELA_NAVIGATE] = 0;
 
-  modelo.objeto.pos.x = 0;
-  modelo.objeto.pos.y = OBJETO_ALTURA * .5;
+  modelo.objeto.pos.x = 10;
+  modelo.objeto.pos.y = OBJETO_ALTURA * 0;
   modelo.objeto.pos.z = 0;
   modelo.objeto.dir = 0;
   modelo.objeto.vel = OBJETO_VELOCIDADE;
@@ -282,20 +284,20 @@ void desenhaAngVisao(Camera *cam)
 
 void desenhaModelo()
 {
-    glColor3f(0,1,0);
-    glutSolidCube(OBJETO_ALTURA);
+    // glColor3f(0,1,0);
+    // glutSolidCube(OBJETO_ALTURA*2.0);
     glPushMatrix();
         glColor3f(1,0,0);
-        glTranslatef(0,OBJETO_ALTURA*0.75,0);
+        glTranslatef(0,OBJETO_ALTURA*1,0);
         glRotatef(GRAUS(estado.camera.dir_long-modelo.objeto.dir),0,1,0);
-        glutSolidCube(OBJETO_ALTURA*0.5);
+        glutSolidCube(OBJETO_ALTURA*2.0);
     glPopMatrix();
 }
 
 void drawmodel(void)
 {
     if (!pmodel) {
-        pmodel = glmReadOBJ("C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/porsche.obj");
+        pmodel = glmReadOBJ("C:/Github/Multimedia1/template_projeto/data/porsche.obj");//C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/porsche.obj
         if (!pmodel) exit(0);
         glmUnitize(pmodel);
         glmFacetNormals(pmodel);
@@ -363,9 +365,9 @@ void setNavigateSubwindowCamera(Camera *cam, Objeto obj)
 
     // Ajustar a distância da câmera diretamente no cálculo
     GLfloat distanceFromObject = 2.0f;
-    cam->eye.x = obj.pos.x - distanceFromObject * cos(obj.dir);
+    cam->eye.x = obj.pos.x - distanceFromObject * cos(cam->dir_long);
     cam->eye.y = obj.pos.y + 0.9f;
-    cam->eye.z = obj.pos.z - distanceFromObject * sin(obj.dir);
+    cam->eye.z = obj.pos.z - distanceFromObject * sin(cam->dir_long);
 
     // Ajustar o ponto de vista da câmera (olhar para o objeto)
     center.x = obj.pos.x;
@@ -393,25 +395,36 @@ void displayNavigateSubwindow()
 	setNavigateSubwindowCamera(&estado.camera, modelo.objeto);
   //setLight();
 
-	glCallList(modelo.mapa[JANELA_NAVIGATE]);
-	glCallList(modelo.chao[JANELA_NAVIGATE]);
-
+	// glCallList(modelo.mapa[JANELA_NAVIGATE]);
+	// glCallList(modelo.chao[JANELA_NAVIGATE]);
+  if(flag==1){
+    glPushMatrix();		
+        glTranslatef(modelo.objeto.pos.x,modelo.objeto.pos.y,modelo.objeto.pos.z);
+        glRotatef(GRAUS(modelo.objeto.dir),0,1,0);
+        glRotatef(90,0,1,0);
+        glCallList(modelo.chao[JANELA_NAVIGATE]);
+    glPopMatrix();
+    printf("FLAG %d\n",flag);
+    flag=0;
+  }
 	if(!estado.vista[JANELA_NAVIGATE])
   {
+glPushMatrix();
+            // glTranslatef(modelo.objeto.pos.x+2,modelo.objeto.pos.y+0.3,modelo.objeto.pos.z);
+            // glRotatef(GRAUS(modelo.objeto.dir),0,1,0);
+            // glRotatef(90,0,1,0);
+          GLfloat light_pos2[] = { 0.0, 2.0, -1.0, 0.0 };
+          glLightfv(GL_LIGHT0, GL_POSITION, light_pos2);
 
-    // glPushMatrix();
-    //         glTranslatef(modelo.objeto.pos.x+2,modelo.objeto.pos.y+0.3,modelo.objeto.pos.z);
-    //         // glRotatef(GRAUS(modelo.objeto.dir),0,1,0);
-    //         // glRotatef(90,0,1,0);
-    //       GLfloat light_pos2[] = { 0.0, 2.0, -1.0, 0.0 };
-    //       glLightfv(GL_LIGHT0, GL_POSITION, light_pos2);
-
-    //       desenhaModelo();
+          desenhaModelo();
           
-    // glPopMatrix();
+    glPopMatrix();
+   
 
     glPushMatrix();
         glTranslatef(modelo.objeto.pos.x,modelo.objeto.pos.y+0.3,modelo.objeto.pos.z);
+        	glCallList(modelo.mapa[JANELA_NAVIGATE]);
+	glCallList(modelo.chao[JANELA_NAVIGATE]);
         glRotatef(GRAUS(modelo.objeto.dir),0,1,0);
         glRotatef(90,0,1,0);
         
@@ -419,16 +432,17 @@ void displayNavigateSubwindow()
         glPushMatrix();
           GLfloat light_pos[] = { 0.0, 2.0, -1.0, 0.0 };
           glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
-
           // desenhaModelo();
             drawmodel();
 
         glPopMatrix();
+        
 
         
         glDisable(GL_LIGHTING);
         
     glPopMatrix();
+     
 
 
   }
@@ -445,9 +459,9 @@ void setTopSubwindowCamera(Camera *cam, Objeto obj)
 	cam->eye.x=obj.pos.x;
 	cam->eye.z=obj.pos.z;
 	if(estado.vista[JANELA_TOP])
-		gluLookAt(obj.pos.x,CHAO_DIMENSAO*.2,obj.pos.z,obj.pos.x,obj.pos.y,obj.pos.z,0,0,-1);
+		gluLookAt(obj.pos.x,20*.2,obj.pos.z,obj.pos.x,obj.pos.y,obj.pos.z,0,0,-1);
 	else
-		gluLookAt(obj.pos.x,CHAO_DIMENSAO*2,obj.pos.z,obj.pos.x,obj.pos.y,obj.pos.z,0,0,-1);
+		gluLookAt(obj.pos.x,20*2,obj.pos.z,obj.pos.x,obj.pos.y,obj.pos.z,0,0,-1);
 }
 
 void displayTopSubwindow()
@@ -458,15 +472,26 @@ void displayTopSubwindow()
     glLoadIdentity();
     setTopSubwindowCamera(&estado.camera,modelo.objeto);
     setLight();
-
-	glCallList(modelo.mapa[JANELA_TOP]);
-	glCallList(modelo.chao[JANELA_TOP]);
+  if(flag==1){
+   
+    glPushMatrix();		
+        glTranslatef(modelo.objeto.pos.x,modelo.objeto.pos.y,modelo.objeto.pos.z);
+        glRotatef(GRAUS(modelo.objeto.dir),0,1,0);
+        glRotatef(90,0,1,0);
+        glCallList(modelo.chao[JANELA_TOP]);
+    glPopMatrix();
+    printf("FLAG %d\n",flag);
+    flag=0;
+  }
+	// glCallList(modelo.mapa[JANELA_TOP]);
+	// glCallList(modelo.chao[JANELA_TOP]);
 	
     glPushMatrix();		
         glTranslatef(modelo.objeto.pos.x,modelo.objeto.pos.y,modelo.objeto.pos.z);
         glRotatef(GRAUS(modelo.objeto.dir),0,1,0);
         glRotatef(90,0,1,0);
-        
+        	glCallList(modelo.mapa[JANELA_TOP]);
+	        glCallList(modelo.chao[JANELA_TOP]);
     glPopMatrix();
 
 	desenhaAngVisao(&estado.camera);
@@ -508,7 +533,10 @@ void timer(int value)
   GLuint curr = glutGet(GLUT_ELAPSED_TIME);
   // Calcula velocidade baseado no tempo passado
 	float velocidade= modelo.objeto.vel*(curr - modelo.prev )*0.001;
-
+  if(modelo.objeto.pos.x>=CHAO_DIMENSAO){
+    flag=0;
+  }
+  printf("pos %f\n",modelo.objeto.pos.x);
   glutTimerFunc(estado.timer, timer, 0);
   /* Acções do temporizador ...
      Não colocar aqui primitivas OpenGL de desenho glBegin, glEnd, etc.
@@ -529,38 +557,40 @@ void timer(int value)
     modelo.objeto.pos.z+=velocidade*sin(RAD(modelo.objeto.dir));
 	}
 	
-  if(estado.teclas.left){
+   if(estado.teclas.left){
     // rodar camara e objeto
     
 
-      modelo.objeto.dir += OBJETO_ROTACAO;
+      // modelo.objeto.dir += OBJETO_ROTACAO;
       // estado.camera.dir_long += EYE_ROTACAO;
-      modelo.objeto.pos.x+=velocidade*cos(RAD(modelo.objeto.dir));
-      modelo.objeto.pos.z-=velocidade*sin(RAD(modelo.objeto.dir));
+      
 
-    printf("dir left: %f %f\n", modelo.objeto.dir, estado.camera.dir_long);
+    // printf("dir left: %f %f\\", modelo.objeto.dir, estado.camera.dir_long);
 
     
     // modelo.objeto.pos.x -=0.5;
-    // modelo.objeto.pos.z -=0.5;
+    modelo.objeto.pos.z -=0.1;
   }
-	if(estado.teclas.right){
+    if(estado.teclas.right){
     // rodar camara e 
     
-      modelo.objeto.dir -= OBJETO_ROTACAO;
+      // modelo.objeto.dir -= OBJETO_ROTACAO;
       // estado.camera.dir_long -= EYE_ROTACAO;
-      modelo.objeto.pos.x+=velocidade*cos(RAD(modelo.objeto.dir));
-      modelo.objeto.pos.z-=velocidade*sin(RAD(modelo.objeto.dir));
+    
 
     
-    printf("dir rigth: %f %f\n", modelo.objeto.dir, estado.camera.dir_long);
+    // printf("dir rigth: %f %f\n", modelo.objeto.dir, estado.camera.dir_long);
 
     // modelo.objeto.pos.x +=0.5;
-    // modelo.objeto.pos.z +=0.5;
-	}
+    modelo.objeto.pos.z +=0.1;
+    }
 
   if(estado.teclas.a){
     estado.camera.dir_long += EYE_ROTACAO;
+    // modelo.objeto.dir += 2 *OBJETO_ROTACAO;
+
+    printf("dir left: %f %f\n", estado.camera.dir_long, modelo.objeto.dir);
+
     // estado.camera.eye.x -= 0.1;
     // estado.camera.eye.z -= 0.1;
 
@@ -569,6 +599,10 @@ void timer(int value)
 
   if(estado.teclas.d){
     estado.camera.dir_long -= EYE_ROTACAO;
+          // modelo.objeto.dir -= OBJETO_ROTACAO;
+
+    printf("dir rigth: %f %f\n",  estado.camera.dir_long, modelo.objeto.dir);
+
     // estado.camera.eye.x += 0.1;
     // estado.camera.eye.z += 0.1;
     
