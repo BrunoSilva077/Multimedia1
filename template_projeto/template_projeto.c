@@ -40,15 +40,17 @@
 #define OBJETO_RAIO		          0.12
 #define EYE_ROTACAO			        0.1
 
-#define NOME_TEXTURA_CHAO     "C:\\Users\\User\\Desktop\\UFP\\Git-Hub\\Multimedia1\\template_projeto\\data\\Tileable-Road-Texture.ppm"    
+#define NOME_TEXTURA_CHAO     "C:/Github/Multimedia1/template_projeto/data/Tileable-Road-Texture.ppm"    
+#define MARIO "C:/Github/Multimedia1/template_projeto/data/textures/mariotex.ppm"
 // "C:\\Users\\User\\Desktop\\UFP\\Git-Hub\\Multimedia1\\template_projeto\\data\\Tileable-Road-Texture.ppm"
 // C:/Github/Multimedia1/template_projeto/data/Tileable-Road-Texture.ppm
 
 
-#define NUM_TEXTURAS              1
+#define NUM_TEXTURAS              2
 #define ID_TEXTURA_CHAO           0
+#define ID_TEXTURA_MARIO          1
 
-#define	CHAO_DIMENSAO		          10
+#define	CHAO_DIMENSAO		          50
 
 #define NUM_JANELAS               2
 #define JANELA_TOP                0
@@ -105,7 +107,7 @@ typedef struct {
 Estado estado;
 Modelo modelo;
 GLMmodel* pmodel = NULL;
-GLint flag=0,flag2=0;
+GLint countM=1,tamChao=CHAO_DIMENSAO;
 
 GLint posicoes[20];
 
@@ -164,9 +166,9 @@ void init(void)
   estado.localViewer = 1;
   estado.vista[JANELA_TOP] = 0;
   estado.vista[JANELA_NAVIGATE] = 0;
-
-  modelo.objeto.pos.x = -195;
-  modelo.objeto.pos.y = OBJETO_ALTURA * 0;
+  modelo.objeto.pos.x = tamChao-(CHAO_DIMENSAO*countM)+(CHAO_DIMENSAO/5); //-195
+    printf("ehehhe %f\n",modelo.objeto.pos.x);
+  modelo.objeto.pos.y = OBJETO_ALTURA * 2;
   modelo.objeto.pos.z = 0;
   modelo.objeto.dir = 0;
   modelo.objeto.vel = OBJETO_VELOCIDADE;
@@ -174,13 +176,7 @@ void init(void)
   modelo.xMouse = modelo.yMouse = -1;
   modelo.andar = GL_FALSE;
 
-    srand(time(NULL));
 
-  for (int i = 0; i < 5; i++)
-  {
-    posicoes[i] = (rand() % 5);
-  }
-  
 
   glEnable(GL_DEPTH_TEST);
   glShadeModel(GL_SMOOTH);
@@ -311,10 +307,10 @@ void desenhaModelo(GLfloat x, GLfloat z)
     glPopMatrix();
 }
 
-void drawmodel(void)
+void drawmodel(GLuint texID)
 {
     if (!pmodel) {
-        pmodel = glmReadOBJ("C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/porsche.obj");
+        pmodel = glmReadOBJ("C:/Github/Multimedia1/template_projeto/data/mario.obj");
         //C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/porsche.obj
         // C:/Github/Multimedia1/template_projeto/data/porsche.obj
         if (!pmodel) exit(0);
@@ -322,7 +318,10 @@ void drawmodel(void)
         glmFacetNormals(pmodel);
         glmVertexNormals(pmodel, 90.0);
     }
-    glmDraw(pmodel, GLM_SMOOTH | GLM_MATERIAL);
+    glPushMatrix();
+    glBindTexture(GL_TEXTURE_2D, texID);
+    glmDraw(pmodel, GLM_SMOOTH | GLM_MATERIAL | GLM_TEXTURE);
+    glPopMatrix();
 }
 
 
@@ -332,7 +331,7 @@ void desenhaChao(GLfloat dimensao, GLuint texID)
     glBindTexture(GL_TEXTURE_2D, texID);
 
     glColor3f(0.5f,0.5f,0.5f);
-    for(i=-dimensao*20;i<=dimensao*20;i+=STEP)
+    for(i=dimensao-(CHAO_DIMENSAO*countM)-(CHAO_DIMENSAO);i<=dimensao;i+=STEP) //(CHAO_DIMENSAO/5) quanto mener o valor dividido melhor fica o chao adicionado
     {
       for(j=-3;j<=3;j+=STEP)
       {
@@ -359,7 +358,7 @@ void createDisplayLists(int janelaID)
 	modelo.chao[janelaID]=modelo.mapa[janelaID];
 	glNewList(modelo.chao[janelaID], GL_COMPILE);
 		glPushAttrib(GL_COLOR_BUFFER_BIT | GL_CURRENT_BIT | GL_ENABLE_BIT );
-		  desenhaChao(CHAO_DIMENSAO,modelo.texID[janelaID][ID_TEXTURA_CHAO]);
+		  // desenhaChao(tamChao,modelo.texID[janelaID][ID_TEXTURA_CHAO]);
 		glPopAttrib();
 	glEndList();
 }
@@ -384,12 +383,12 @@ void setNavigateSubwindowCamera(Camera *cam, Objeto obj)
     // Ajustar a distância da câmera diretamente no cálculo
     GLfloat distanceFromObject = 2.0f;
     cam->eye.x = obj.pos.x - distanceFromObject * cos(cam->dir_long);
-    cam->eye.y = obj.pos.y + 0.9f;
+    cam->eye.y = obj.pos.y + 1.2f;
     cam->eye.z = obj.pos.z - distanceFromObject * sin(cam->dir_long);
 
     // Ajustar o ponto de vista da câmera (olhar para o objeto)
     center.x = obj.pos.x;
-    center.y = obj.pos.y + 0.9f;
+    center.y = obj.pos.y + 1.2f;
     center.z = obj.pos.z;
 
   /*
@@ -412,28 +411,10 @@ void displayNavigateSubwindow()
 
 	setNavigateSubwindowCamera(&estado.camera, modelo.objeto);
   //setLight();
-
+   desenhaChao(tamChao,modelo.texID[0][ID_TEXTURA_CHAO]);
 	glCallList(modelo.mapa[JANELA_NAVIGATE]);
 	glCallList(modelo.chao[JANELA_NAVIGATE]);
-  // if(flag2==1){
-    
 
-  //   staticFloorX = modelo.objeto.pos.x;
-  //   staticFloorZ = modelo.objeto.pos.z;
-
-    
-  //   // glPushMatrix();		
-
-  //   //     glTranslatef(modelo.objeto.pos.x,0,modelo.objeto.pos.z);
-  //   //     glCallList(modelo.mapa[JANELA_NAVIGATE]);
-	//   //     glCallList(modelo.chao[JANELA_NAVIGATE]);
-  //   //     // glRotatef(GRAUS(modelo.objeto.dir),0,1,0);
-  //   //     // glRotatef(90,0,1,0);
-  
-  //   // glPopMatrix();
-  //   flag2=0;
-  //   flag=0;
-  // }
 	if(!estado.vista[JANELA_NAVIGATE])
   {
 
@@ -469,29 +450,20 @@ void displayNavigateSubwindow()
           glDisable(GL_LIGHTING);
     glPopMatrix();
     }
-    
-
-   
-
-
-
-
-
-   
 
     glPushMatrix();
         glTranslatef(modelo.objeto.pos.x,modelo.objeto.pos.y+0.3,modelo.objeto.pos.z);
         	// glCallList(modelo.mapa[JANELA_NAVIGATE]);
 	        // glCallList(modelo.chao[JANELA_NAVIGATE]);
         glRotatef(GRAUS(modelo.objeto.dir),0,1,0);
-        glRotatef(90,0,1,0);
+        glRotatef(-90, 1, 0, 0);
         
         glEnable(GL_LIGHTING);
         glPushMatrix();
           GLfloat light_pos[] = { 0.0, 2.0, -1.0, 0.0 };
           glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
           // desenhaModelo();
-            drawmodel();
+          drawmodel(modelo.texID[0][ID_TEXTURA_MARIO]);
 
         glPopMatrix();
         
@@ -530,21 +502,7 @@ void displayTopSubwindow()
     glLoadIdentity();
     setTopSubwindowCamera(&estado.camera,modelo.objeto);
     setLight();
-  // if(flag==1){
-
-    
-   
-  //   glPushMatrix();		
-  //       glTranslatef(modelo.objeto.pos.x,modelo.objeto.pos.y,modelo.objeto.pos.z);
-        
-  //       glRotatef(GRAUS(modelo.objeto.dir),0,1,0);
-  //       glRotatef(90,0,1,0);
-  //       glCallList(modelo.mapa[JANELA_TOP]);
-	//       glCallList(modelo.chao[JANELA_TOP]);
-  //   glPopMatrix();
-  //   // printf("FLAG2 %d\n",flag);
-  //   flag2=1;
-  // }
+     desenhaChao(tamChao,modelo.texID[0][ID_TEXTURA_CHAO]);
 	glCallList(modelo.mapa[JANELA_TOP]);
 	glCallList(modelo.chao[JANELA_TOP]);
 	
@@ -597,12 +555,10 @@ void timer(int value)
 	float velocidade= modelo.objeto.vel*(curr - modelo.prev )*0.001;
 
 
-  if(modelo.objeto.pos.x>=CHAO_DIMENSAO){
-
-    flag=1;
-    
+  if(modelo.objeto.pos.x + (CHAO_DIMENSAO)>=tamChao){
+    countM=2;
+    tamChao=tamChao+(CHAO_DIMENSAO*countM);
   }
-
   
   // printf("pos %f\n",modelo.objeto.pos.x);
   glutTimerFunc(estado.timer, timer, 0);
@@ -655,10 +611,10 @@ void timer(int value)
     printf("pos %f %f\n",modelo.objeto.pos.x,modelo.objeto.pos.z);
 
     }
-
-         if(modelo.objeto.pos.z <= -2.7f || modelo.objeto.pos.z >= 3.69f || modelo.objeto.pos.x <= -200.0f){
+         if(modelo.objeto.pos.z <= -2.7f || modelo.objeto.pos.z >= 3.69f || modelo.objeto.pos.x <= tamChao-(CHAO_DIMENSAO*countM)-(CHAO_DIMENSAO)){
         modelo.objeto.pos.z = 0.0f;
-        modelo.objeto.pos.x = -195.0f;
+        printf("continha %d",tamChao-(CHAO_DIMENSAO*countM)+(CHAO_DIMENSAO/5));
+        modelo.objeto.pos.x = tamChao-(CHAO_DIMENSAO*countM)-(CHAO_DIMENSAO*0.9);
       }
 
   if(estado.teclas.a){
@@ -869,8 +825,8 @@ void specialKeyUp(int key, int x, int y)
 
 void createTextures(GLuint texID[])
 {
-    unsigned char *image = NULL;
-    int w, h, bpp;
+    unsigned char *image = NULL, *image2 = NULL;
+    int w, h, bpp,w2,h2,bpp2;
 
     glGenTextures(NUM_TEXTURAS,texID);
 
@@ -886,6 +842,18 @@ void createTextures(GLuint texID[])
         gluBuild2DMipmaps(GL_TEXTURE_2D, 3, w, h, GL_RGB, GL_UNSIGNED_BYTE, image);
     }else{
         printf("Textura %s não encontrada \n",NOME_TEXTURA_CHAO);
+        exit(0);
+    }
+     image2 = glmReadPPM(MARIO, &w2, &h2);
+    if(image2)
+    {
+        glBindTexture(GL_TEXTURE_2D, texID[ID_TEXTURA_MARIO]);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST );
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+        gluBuild2DMipmaps(GL_TEXTURE_2D, 3, w2, h2, GL_RGB, GL_UNSIGNED_BYTE, image2);
+    }else{
+        printf("Textura %s não encontrada \n",MARIO);
         exit(0);
     }
 
@@ -905,6 +873,14 @@ int main(int argc, char **argv)
     exit(1);
 
   imprime_ajuda();
+      srand(time(NULL));
+
+  for (int i = 0; i < 10; i++)
+  {
+   posicoes[i] = rand() % 7 - 2;  // Gera valores de -2 a 4
+       printf("%d ", posicoes[i]);
+  }
+  
 
   // Registar callbacks do GLUT da janela principal
   init();
