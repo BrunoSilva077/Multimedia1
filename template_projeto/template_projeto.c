@@ -40,9 +40,10 @@
 #define OBJETO_RAIO		          0.12
 #define EYE_ROTACAO			        0.1
 
-#define NOME_TEXTURA_CHAO     "C:\\Users\\User\\Desktop\\UFP\\Git-Hub\\Multimedia1\\template_projeto\\data\\Tileable-Road-Texture.ppm"    
+#define NOME_TEXTURA_CHAO     "C:\\Users\\Asus\\Desktop\\UFP\\GitHub\\Multimedia1\\template_projeto\\data\\Tileable-Road-Texture.ppm"    
 // "C:\\Users\\User\\Desktop\\UFP\\Git-Hub\\Multimedia1\\template_projeto\\data\\Tileable-Road-Texture.ppm"
 // C:/Github/Multimedia1/template_projeto/data/Tileable-Road-Texture.ppm
+// C:\Users\Asus\Desktop\UFP\GitHub\Multimedia1\template_projeto\data
 
 
 #define NUM_TEXTURAS              1
@@ -75,6 +76,10 @@ typedef struct {
 } Objeto;
 
 typedef struct {
+    Posicao   pos; 
+} Retangulo;
+
+typedef struct {
     Posicao  eye;  
     GLfloat  dir_long;  // longitude olhar (esq-dir)
     GLfloat  dir_lat;   // latitude olhar	(cima-baixo)
@@ -95,6 +100,7 @@ typedef struct {
     GLuint        mapa[NUM_JANELAS];
     GLuint        chao[NUM_JANELAS];
     Objeto	      objeto;
+    Retangulo     retangulo[10];
     GLuint        xMouse;
     GLuint        yMouse;
     GLMmodel*     modelo;
@@ -107,7 +113,7 @@ Modelo modelo;
 GLMmodel* pmodel = NULL;
 GLint flag=0,flag2=0;
 
-GLint posicoes[20];
+GLint posicoes[20],posisaoX=-190;
 
 /**************************************
 ******* ILUMINAÇÃO E MATERIAIS ********
@@ -168,6 +174,22 @@ void init(void)
   modelo.objeto.pos.x = -195;
   modelo.objeto.pos.y = OBJETO_ALTURA * 0;
   modelo.objeto.pos.z = 0;
+  for (int i = 0; i < 10; i++)
+  {
+    /* code */
+  modelo.retangulo[i].pos.x = posisaoX;
+  // printf("posicao %d\n",posisaoX);
+  modelo.retangulo[i].pos.y = 0;
+  modelo.retangulo[i].pos.z = 0;
+  posisaoX+=10;
+  }
+
+  for (int i = 0; i < 10; i++)
+  {
+    printf("posicao  retangulo %d\n",modelo.retangulo[i].pos.x);
+    }
+  
+  
   modelo.objeto.dir = 0;
   modelo.objeto.vel = OBJETO_VELOCIDADE;
 
@@ -314,9 +336,10 @@ void desenhaModelo(GLfloat x, GLfloat z)
 void drawmodel(void)
 {
     if (!pmodel) {
-        pmodel = glmReadOBJ("C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/porsche.obj");
+        pmodel = glmReadOBJ("C:/Users/Asus/Desktop/UFP/GitHub/Multimedia1/template_projeto/data/porsche.obj");
         //C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/porsche.obj
         // C:/Github/Multimedia1/template_projeto/data/porsche.obj
+        // C:\Users\Asus\Desktop\UFP\GitHub\Multimedia1\template_projeto\data\porsche.obj
         if (!pmodel) exit(0);
         glmUnitize(pmodel);
         glmFacetNormals(pmodel);
@@ -459,11 +482,12 @@ void displayNavigateSubwindow()
 
               // glTranslatef(pos, posicoes[0], 0.0);
 
-
-          desenhaModelo(pos,posicoes[i]);
+          // printf("modelo.retangulo[i].pos.x %d  i %d\n",modelo.retangulo[i].pos.x,i);
+          desenhaModelo(modelo.retangulo[i].pos.x,posicoes[i]);
               // printf("posicao %d\n",posicoes[i]);
 
-          pos += 10;
+          // pos = modelo.retangulo.pos.x + 10;
+          // pos += 10;
           // printf("posicao %f\n",pos);
           
           glDisable(GL_LIGHTING);
@@ -616,7 +640,8 @@ void timer(int value)
   {
     andar=GL_TRUE;
     modelo.objeto.pos.x+=velocidade*cos(RAD(modelo.objeto.dir));
-    modelo.objeto.pos.z-=velocidade*sin(RAD(modelo.objeto.dir));  
+    modelo.objeto.pos.z-=velocidade*sin(RAD(modelo.objeto.dir));
+    printf("pos retangulo %f\n",modelo.retangulo[1].pos.x);  
 	}
 	
   if(estado.teclas.down){
@@ -652,9 +677,9 @@ void timer(int value)
 
     // modelo.objeto.pos.x +=0.5;
     modelo.objeto.pos.z +=0.1;
-    printf("pos %f %f\n",modelo.objeto.pos.x,modelo.objeto.pos.z);
-
     }
+
+     
 
          if(modelo.objeto.pos.z <= -2.7f || modelo.objeto.pos.z >= 3.69f || modelo.objeto.pos.x <= -200.0f){
         modelo.objeto.pos.z = 0.0f;
