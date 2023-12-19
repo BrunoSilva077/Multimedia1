@@ -69,7 +69,7 @@
 
 #define STEP                      1
 
-#define qntyCubos                 20
+#define qntyCubos                 50
 
 /**************************************
 ********** VARIÁVEIS GLOBAIS **********
@@ -120,7 +120,7 @@ typedef struct {
 Estado estado;
 Modelo modelo;
 GLMmodel* pmodel = NULL;
-GLint countM=1,tamChao=CHAO_DIMENSAO, qntyDeChaoGerado=qntyCubos, dimensaoChao=0;
+GLint countM=1,tamChao=CHAO_DIMENSAO, dimensaoChao=0;
 
 GLint posCuboZ[qntyCubos], posCubos[qntyCubos], incrementador=0;
 
@@ -193,10 +193,10 @@ for (int i = 0; i < 20; i++)
 {
   // int random = (rand() % 6) + 10;
   if(i==0){
-    posCubos[i]=10;
+    posCubos[i]=15;
   }
   else{
-  posCubos[i] = posCubos[i-1]+ 10;
+  posCubos[i] = posCubos[i-1]+ 15;
   posCuboZ[i] = (rand() % 5) - 2;
 
   }
@@ -351,7 +351,35 @@ void desenhaModelo(GLuint texID)
     glPopMatrix();
     glDisable(GL_LIGHTING); // Habilita o uso de cor no material
 }
+void desenhaArvore(){
+  glPushMatrix();
+    glPushMatrix();
+      glTranslatef(5.0f, 0.0f, -3.0f);
+      glScalef(5,20,5);
+      glColor3f(1.0f, 0.0f, 0.0f);
+      glutSolidCube(OBJETO_ALTURA * 0.5);
+    glPopMatrix();
 
+    glPushMatrix();
+      glPushMatrix();
+        GLUquadricObj* quadric = gluNewQuadric();
+        gluQuadricDrawStyle(quadric, GLU_FILL);  // Preencher a esfera
+        gluQuadricNormals(quadric, GLU_SMOOTH);  // Utilizar normais suaves
+      glPopMatrix();
+      glPushMatrix();
+        glTranslatef(5.0f, 3.0f, -3.0f);
+        glColor3f(0.0f, 1.0f, 0.0f);
+        gluSphere(quadric, 1.5, 20, 20);  // Desenhar uma esfera 
+      glPopMatrix();
+        glPushMatrix();
+        glTranslatef(5.0f, 5.0f, -3.0f);
+        glColor3f(0.0f, 1.0f, 0.0f);
+        gluSphere(quadric, 1.25, 20, 20);  // Desenhar uma esfera 
+      glPopMatrix();
+    glPopMatrix();
+  glPopMatrix();
+
+}
 void drawmodel(GLuint texID)
 {
     if (!pmodel) {
@@ -437,7 +465,6 @@ void desenhaChao(GLfloat dimensao, GLuint texID)
     }
     
 }
-
 void createDisplayLists(int janelaID)
 {
 	modelo.mapa[janelaID]=glGenLists(1);
@@ -544,7 +571,11 @@ void displayNavigateSubwindow()
                glPushMatrix();
               glTranslatef(posCubos[i],0,posCuboZ[i]);
               desenhaModelo(modelo.texID[2][ID_TEXTURA_CAIXA]);  
-                glPopMatrix();     
+ 
+              glPopMatrix();     
+                    glPushMatrix();
+                      desenhaArvore();
+                glPopMatrix();   
           }
 
 
@@ -668,15 +699,14 @@ void timer(int value)
     countM=2;
     tamChao=tamChao+(CHAO_DIMENSAO*countM);
   }
-  
 //  printf("modelo.objeto.pos.x: %f\n", modelo.objeto.pos.x);
 // printf("posCubos[incrementador]: %f\n", posCubos[incrementador]);
 // printf("modelo.objeto.pos.z: %f\n", modelo.objeto.pos.z);
 // printf("posCuboZ[incrementador]: %f\n", posCuboZ[incrementador]);
-  // printf("inc %f\n",posCubos[incrementador]);
-  printf("pos %f\n",modelo.objeto.pos.x);
+  // printf("inc %f\n",posCuboZ[incrementador]);
+  // printf("pos %f\n",modelo.objeto.pos.x);
    if  ((modelo.objeto.pos.x <= posCubos[incrementador]+1 && modelo.objeto.pos.x >= posCubos[incrementador]-1) &&
-   (( modelo.objeto.pos.z >= posCuboZ[incrementador]-1 && modelo.objeto.pos.z <= posCuboZ[incrementador]+1)))
+   (( modelo.objeto.pos.z >= posCuboZ[incrementador]-2.0f && modelo.objeto.pos.z <= posCuboZ[incrementador]+2.0f)))
   {
        modelo.objeto.pos.z = 0.0f;
         // printf("continha %d",tamChao-(CHAO_DIMENSAO*countM)+(CHAO_DIMENSAO/5));
@@ -709,9 +739,9 @@ printf("posCuboZ[incrementador]: %d\n", posCuboZ[incrementador]);
 	}
 	
   if(estado.teclas.down){
-    andar=GL_TRUE;
-    modelo.objeto.pos.x-=velocidade*cos(RAD(modelo.objeto.dir));
-    modelo.objeto.pos.z+=velocidade*sin(RAD(modelo.objeto.dir));
+    // andar=GL_TRUE;
+    // modelo.objeto.pos.x-=velocidade*cos(RAD(modelo.objeto.dir));
+    // modelo.objeto.pos.z+=velocidade*sin(RAD(modelo.objeto.dir));
 	}
 	
    if(estado.teclas.left){
