@@ -43,14 +43,14 @@
 #define LIMITE_ESQUERDA		      -2.7f
 #define LIMITE_DIREITA		      3.69f
 
-#define NOME_TEXTURA_CHAO     "C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/Tileable-Road-Texture.ppm"
+#define NOME_TEXTURA_CHAO     "C:/Github/Multimedia1/template_projeto/data/Tileable-Road-Texture.ppm"
 // "C:\\Users\\User\\Desktop\\UFP\\Git-Hub\\Multimedia1\\template_projeto\\data\\Tileable-Road-Texture.ppm"
 // C:/Github/Multimedia1/template_projeto/data/Tileable-Road-Texture.ppm    
-#define MARIO "C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/textures/mariotex.ppm"
+#define MARIO "C:/Github/Multimedia1/template_projeto/data/textures/mariotex.ppm"
 // C:\Users\User\Desktop\UFP\Git-Hub\Multimedia1\template_projeto\data\textures\mariotex.ppm
 // C:/Github/Multimedia1/template_projeto/data/textures/mariotex.ppm
 
-#define CAIXA "C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/caixa.ppm"
+#define CAIXA "C:/Github/Multimedia1/template_projeto/data/caixa.ppm"
 // C:\Users\User\Desktop\UFP\Git-Hub\Multimedia1\template_projeto\data\textures\mariotex.ppm
 // C:/Github/Multimedia1/template_projeto/data/textures/mariotex.ppm
 
@@ -120,9 +120,9 @@ typedef struct {
 Estado estado;
 Modelo modelo;
 GLMmodel* pmodel = NULL;
-GLint countM=1,tamChao=CHAO_DIMENSAO, dimensaoChao=0;
+GLint countM=1,tamChao=CHAO_DIMENSAO,dimensaoChao=0;
 
-GLint posCuboZ[qntyCubos], posCubos[qntyCubos], incrementador=0;
+GLint posCuboZ[qntyCubos], posCubos[qntyCubos], incrementador=0,mudaXBola=0;
 
 /**************************************
 ******* ILUMINAÇÃO E MATERIAIS ********
@@ -179,7 +179,8 @@ void init(void)
   estado.localViewer = 1;
   estado.vista[JANELA_TOP] = 0;
   estado.vista[JANELA_NAVIGATE] = 0;
-  modelo.objeto.pos.x =tamChao-(CHAO_DIMENSAO*0.9);
+  modelo.objeto.pos.x =700;
+  // tamChao-(CHAO_DIMENSAO*0.9)
   modelo.objeto.pos.y = OBJETO_ALTURA * 2;
   modelo.objeto.pos.z = 0;
   modelo.objeto.dir = 0;
@@ -487,9 +488,8 @@ void desenhaMoeda(){
 void drawmodel(GLuint texID)
 {
     if (!pmodel) {
-        pmodel = glmReadOBJ("C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/mario.obj");
+        pmodel = glmReadOBJ("C:/Github/Multimedia1/template_projeto/data/mario.obj");
         //C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/mario.obj
-        // C:/Github/Multimedia1/template_projeto/data/porsche.obj
         //C:/Github/Multimedia1/template_projeto/data/mario.obj
         if (!pmodel) exit(0);
         glmUnitize(pmodel);
@@ -684,46 +684,33 @@ void displayNavigateSubwindow()
     // }
           
           glPushMatrix();
-            glTranslatef(10.0f,1.5f,4.0f);
+            glTranslatef(780.0f+mudaXBola,1.5f,0.0f);
             desenhaMoeda();
-            
           glPopMatrix();
-
-
-
-
-
-
 
         
           GLfloat light_pos[] = { 0.0, 2.0, -1.0, 0.0 };
           glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
-          for (int i = 0; i < qntyCubos; i++)
-          {
+          for (int i = 0; i < qntyCubos; i++){
                glPushMatrix();
               glTranslatef(posCubos[i],0,posCuboZ[i]);
               desenhaModelo(modelo.texID[1][ID_TEXTURA_CAIXA]);
               glPopMatrix();  
           }
 
-          
-
+        
           for (int i = 0; i < qntyCubos; i++)
           {
             glPushMatrix();
-              glTranslatef(i*10,0,posCuboZ[i]);
+              glTranslatef(posCubos[i]+5,0,posCuboZ[i]);
               desenhaArvore();
             glPopMatrix();   
             glPushMatrix();
-              glTranslatef(i*10,0,posCuboZ[i]);
+              glTranslatef(posCubos[i]+5,0,posCuboZ[i]);
               desenhaArvore2();
             glPopMatrix();
           }
 
-
-
-
-     
 
     glPushMatrix();
         glTranslatef(modelo.objeto.pos.x,modelo.objeto.pos.y+0.3,modelo.objeto.pos.z);
@@ -860,34 +847,51 @@ void timer(int value)
   // Calcula velocidade baseado no tempo passado
 	float velocidade= modelo.objeto.vel*(curr - modelo.prev )*0.001;
 
+  if((modelo.objeto.pos.x >= 780 && modelo.objeto.pos.x <= 781) && modelo.objeto.pos.z >= -1.8f && modelo.objeto.pos.z <= 1.8f){
+    printf("ganhou\n");
+    estado.teclas.s=GL_FALSE;
+    mudaXBola=100.0f;
+    estado.teclas.left=GL_FALSE;
+    estado.teclas.right=GL_FALSE;
+
+  }
+  else if(modelo.objeto.pos.x >= 799 && modelo.objeto.pos.x <= 800){
+    printf("ganhou\n");
+    estado.teclas.s=GL_FALSE;
+    estado.teclas.left=GL_FALSE;
+    estado.teclas.right=GL_FALSE;
+  }
 
   if(modelo.objeto.pos.x + (CHAO_DIMENSAO)>=tamChao){
     countM=2;
     tamChao=tamChao+(CHAO_DIMENSAO*countM);
   }
-//  printf("modelo.objeto.pos.x: %f\n", modelo.objeto.pos.x);
+ printf("modelo.objeto.pos.x: %f\n", modelo.objeto.pos.x);
 // printf("posCubos[incrementador]: %f\n", posCubos[incrementador]);
 // printf("modelo.objeto.pos.z: %f\n", modelo.objeto.pos.z);
 // printf("posCuboZ[incrementador]: %f\n", posCuboZ[incrementador]);
   // printf("inc %f\n",posCuboZ[incrementador]);
   // printf("pos %f\n",modelo.objeto.pos.x);
-   if  ((modelo.objeto.pos.x <= posCubos[incrementador]+1 && modelo.objeto.pos.x >= posCubos[incrementador]-1) &&
-   (( modelo.objeto.pos.z >= posCuboZ[incrementador]-2.0f && modelo.objeto.pos.z <= posCuboZ[incrementador]+2.0f)))
-  {
-       modelo.objeto.pos.z = 0.0f;
-        // printf("continha %d",tamChao-(CHAO_DIMENSAO*countM)+(CHAO_DIMENSAO/5));
-        modelo.objeto.pos.x = tamChao-(CHAO_DIMENSAO*countM)-(CHAO_DIMENSAO*0.9);
-        estado.teclas.s=GL_FALSE;
-        incrementador=0;
-  }
-  else if(modelo.objeto.pos.x > posCubos[incrementador]){
-    incrementador++;
-//     printf("incrementador %d\n",incrementador);
-//     printf("modelo.objeto.pos.x: %f\n", modelo.objeto.pos.x);
-// printf("posCubos[incrementador]: %d\n", posCubos[incrementador]);
-// printf("modelo.objeto.pos.z: %f\n", modelo.objeto.pos.z);
-// printf("posCuboZ[incrementador]: %d\n", posCuboZ[incrementador]);
-  }
+//    if  ((modelo.objeto.pos.x <= posCubos[incrementador]+1 && modelo.objeto.pos.x >= posCubos[incrementador]-1) &&
+//    (( modelo.objeto.pos.z >= posCuboZ[incrementador]-2.0f && modelo.objeto.pos.z <= posCuboZ[incrementador]+2.0f)))
+//   {
+//        modelo.objeto.pos.z = 0.0f;
+//         // printf("continha %d",tamChao-(CHAO_DIMENSAO*countM)+(CHAO_DIMENSAO/5));
+//         tamChao=CHAO_DIMENSAO;
+//         countM=1;
+//         modelo.objeto.pos.x = tamChao-(CHAO_DIMENSAO*0.9);
+//         estado.teclas.s=GL_FALSE;
+//         incrementador=0;
+//         printf("pos %f\n",modelo.objeto.pos.x);
+//   }
+//   else if(modelo.objeto.pos.x > posCubos[incrementador]){
+//     incrementador++;
+// //     printf("incrementador %d\n",incrementador);
+// //     printf("modelo.objeto.pos.x: %f\n", modelo.objeto.pos.x);
+// // printf("posCubos[incrementador]: %d\n", posCubos[incrementador]);
+// // printf("modelo.objeto.pos.z: %f\n", modelo.objeto.pos.z);
+// // printf("posCuboZ[incrementador]: %d\n", posCuboZ[incrementador]);
+//   }
 
   
   // printf("pos %f\n",modelo.objeto.pos.x);
@@ -898,7 +902,7 @@ void timer(int value)
 
   modelo.prev = curr;
 
-  if(estado.teclas.s)
+  if(estado.teclas.up)
   {
     andar=GL_TRUE;
     modelo.objeto.pos.x+=velocidade*cos(RAD(modelo.objeto.dir));
@@ -906,9 +910,9 @@ void timer(int value)
 	}
 	
   if(estado.teclas.down){
-    // andar=GL_TRUE;
-    // modelo.objeto.pos.x-=velocidade*cos(RAD(modelo.objeto.dir));
-    // modelo.objeto.pos.z+=velocidade*sin(RAD(modelo.objeto.dir));
+    andar=GL_TRUE;
+    modelo.objeto.pos.x-=velocidade*cos(RAD(modelo.objeto.dir));
+    modelo.objeto.pos.z+=velocidade*sin(RAD(modelo.objeto.dir));
 	}
 	
    if(estado.teclas.left){
@@ -944,8 +948,10 @@ void timer(int value)
          if(modelo.objeto.pos.z <= -2.7f || modelo.objeto.pos.z >= 3.69f){
         modelo.objeto.pos.z = 0.0f;
         incrementador=0;
+        tamChao=CHAO_DIMENSAO;
+        countM=1;
         // printf("continha %d",tamChao-(CHAO_DIMENSAO*countM)+(CHAO_DIMENSAO/5));
-        modelo.objeto.pos.x = tamChao-(CHAO_DIMENSAO*countM)-(CHAO_DIMENSAO*0.9);
+        modelo.objeto.pos.x = tamChao-(CHAO_DIMENSAO*0.9);
         estado.teclas.s=GL_FALSE;
       }
 
@@ -1050,6 +1056,15 @@ void key(unsigned char key, int x, int y)
     case 's':
     case 'S':
         estado.teclas.s = GL_TRUE;
+        break;   
+
+    case 'r':
+    case 'R':
+        tamChao=CHAO_DIMENSAO;
+        countM=1;
+        modelo.objeto.pos.x = tamChao-(CHAO_DIMENSAO*0.9);
+        mudaXBola=0.0f;
+        incrementador=0;
         break;   
 	}
 
