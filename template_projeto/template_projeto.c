@@ -43,14 +43,14 @@
 #define LIMITE_ESQUERDA		      -2.7f
 #define LIMITE_DIREITA		      3.69f
 
-#define NOME_TEXTURA_CHAO     "C:/Github/Multimedia1/template_projeto/data/Tileable-Road-Texture.ppm"
+#define NOME_TEXTURA_CHAO     "C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/Tileable-Road-Texture.ppm"
 // "C:\\Users\\User\\Desktop\\UFP\\Git-Hub\\Multimedia1\\template_projeto\\data\\Tileable-Road-Texture.ppm"
 // C:/Github/Multimedia1/template_projeto/data/Tileable-Road-Texture.ppm    
-#define MARIO "C:/Github/Multimedia1/template_projeto/data/textures/mariotex.ppm"
+#define MARIO "C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/textures/mariotex.ppm"
 // C:\Users\User\Desktop\UFP\Git-Hub\Multimedia1\template_projeto\data\textures\mariotex.ppm
 // C:/Github/Multimedia1/template_projeto/data/textures/mariotex.ppm
 
-#define CAIXA "C:/Github/Multimedia1/template_projeto/data/caixa.ppm"
+#define CAIXA "C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/caixa.ppm"
 // C:\Users\User\Desktop\UFP\Git-Hub\Multimedia1\template_projeto\data\textures\mariotex.ppm
 // C:/Github/Multimedia1/template_projeto/data/textures/mariotex.ppm
 
@@ -76,7 +76,7 @@
 **************************************/
 
 typedef struct {
-  GLboolean   up,down,left,right,a,d;
+  GLboolean   up,down,left,right,a,d,s;
 } Teclas;
 
 typedef struct {
@@ -189,7 +189,7 @@ void init(void)
   modelo.andar = GL_FALSE;
 int previousRandom = 0;
 
-for (int i = 0; i < 20; i++)
+for (int i = 0; i < 50; i++)
 {
   // int random = (rand() % 6) + 10;
   if(i==0){
@@ -332,31 +332,39 @@ void desenhaModelo(GLuint texID)
 {
     glEnable(GL_LIGHTING); // Habilita o uso de cor no material
     glPushMatrix();
-    // glColor3f(1, 0, 0)
-//    GLfloat brown_mat[] = {0.5, 0.2, 0.0, 1.0};  // Castanho claro (R: 0.5, G: 0.2, B: 0.0)
-// GLfloat white_mat[] = {1.0, 1.0, 1.0, 1.0};  // Branco puro (R: 1.0, G: 1.0, B: 1.0)
-//    GLfloat low_shininess[] = {25.0};
-//     GLfloat no_mat[] = {0.5, 0.2, 0.0, 1.0};
-// glMaterialfv(GL_FRONT, GL_AMBIENT, brown_mat);
-// glMaterialfv(GL_FRONT, GL_DIFFUSE, brown_mat);
-// glMaterialfv(GL_FRONT, GL_SPECULAR, white_mat);
-// glMaterialfv(GL_FRONT, GL_SHININESS, low_shininess);
-// glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
+   GLfloat brown_mat[] = {0.5, 0.2, 0.0, 1.0};  // Castanho claro (R: 0.5, G: 0.2, B: 0.0)
+GLfloat white_mat[] = {1.0, 1.0, 1.0, 1.0};  // Branco puro (R: 1.0, G: 1.0, B: 1.0)
+   GLfloat low_shininess[] = {25.0};
+    GLfloat no_mat[] = {0.5, 0.2, 0.0, 1.0};
+glMaterialfv(GL_FRONT, GL_AMBIENT, brown_mat);
+glMaterialfv(GL_FRONT, GL_DIFFUSE, brown_mat);
+glMaterialfv(GL_FRONT, GL_SPECULAR, white_mat);
+glMaterialfv(GL_FRONT, GL_SHININESS, low_shininess);
+glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
 
     // glTranslatef(0, OBJETO_ALTURA * 0.75, 0);
     glScalef(15, 15, 15);
-    // glRotatef(GRAUS(estado.camera.dir_long - modelo.objeto.dir), 0, 1, 0);
-    glBindTexture(GL_TEXTURE_2D, texID);
+    // glBindTexture(GL_TEXTURE_2D, texID);
     glutSolidCube(OBJETO_ALTURA * 0.5);
     glPopMatrix();
     glDisable(GL_LIGHTING); // Habilita o uso de cor no material
 }
 void desenhaArvore(){
+    glEnable(GL_LIGHTING);
   glPushMatrix();
     glPushMatrix();
-      glTranslatef(5.0f, 0.0f, -3.0f);
+        GLfloat dark_brown_mat[] = {0.36, 0.25, 0.20, 1.0};  // Castanho escuro (R: 0.36, G: 0.25, B: 0.20)
+        GLfloat white_mat[] = {1.0, 1.0, 1.0, 1.0};  // Branco puro (R: 1.0, G: 1.0, B: 1.0)
+        GLfloat low_shininess[] = {25.0};
+        GLfloat no_mat[] = {0.0, 0.0, 0.0, 0.0};
+        glMaterialfv(GL_FRONT, GL_AMBIENT, dark_brown_mat);
+        glMaterialfv(GL_FRONT, GL_DIFFUSE, dark_brown_mat);
+        glMaterialfv(GL_FRONT, GL_SPECULAR, white_mat);
+        glMaterialfv(GL_FRONT, GL_SHININESS, low_shininess);
+        glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
+      glTranslatef(5.0f, 0.0f, -6.0f);
       glScalef(5,20,5);
-      glColor3f(1.0f, 0.0f, 0.0f);
+      // glColor3f(1.0f, 0.0f, 0.0f);
       glutSolidCube(OBJETO_ALTURA * 0.5);
     glPopMatrix();
 
@@ -366,24 +374,120 @@ void desenhaArvore(){
         gluQuadricDrawStyle(quadric, GLU_FILL);  // Preencher a esfera
         gluQuadricNormals(quadric, GLU_SMOOTH);  // Utilizar normais suaves
       glPopMatrix();
+      
       glPushMatrix();
-        glTranslatef(5.0f, 3.0f, -3.0f);
-        glColor3f(0.0f, 1.0f, 0.0f);
-        gluSphere(quadric, 1.5, 20, 20);  // Desenhar uma esfera 
-      glPopMatrix();
+          GLfloat green_mat[] = {0.0, 1.0, 0.0, 1.0};  // Verde claro (R: 0.0, G: 1.0, B: 0.0)
+          GLfloat dark_green_mat[] = {0.0, 0.2, 0.0, 1.0};  // Sombra verde escura (R: 0.0, G: 0.2, B: 0.0)
+          glMaterialfv(GL_FRONT, GL_AMBIENT, green_mat);
+          glMaterialfv(GL_FRONT, GL_DIFFUSE, green_mat);
+          glMaterialfv(GL_FRONT, GL_SPECULAR, dark_green_mat);
+          glMaterialfv(GL_FRONT, GL_SHININESS, low_shininess);
+          glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
         glPushMatrix();
-        glTranslatef(5.0f, 5.0f, -3.0f);
-        glColor3f(0.0f, 1.0f, 0.0f);
-        gluSphere(quadric, 1.25, 20, 20);  // Desenhar uma esfera 
+          glTranslatef(5.0f, 3.0f, -6.0f);
+          // glColor3f(0.0f, 1.0f, 0.0f);
+          gluSphere(quadric, 1.5, 20, 20);  // Desenhar uma esfera 
+        glPopMatrix();
+        glPushMatrix();
+          glTranslatef(5.0f, 5.0f, -6.0f);
+          // glColor3f(0.0f, 1.0f, 0.0f);
+          gluSphere(quadric, 1.25, 20, 20);  // Desenhar uma esfera 
+        glPopMatrix();
+      glPopMatrix();  
+
+  glPopMatrix();
+    glDisable(GL_LIGHTING);
+}
+void desenhaArvore2(){
+  glEnable(GL_LIGHTING);
+  glPushMatrix();
+    glPushMatrix();
+        GLfloat dark_brown_mat[] = {0.36, 0.25, 0.20, 1.0};  // Castanho escuro (R: 0.36, G: 0.25, B: 0.20)
+        GLfloat white_mat[] = {1.0, 1.0, 1.0, 1.0};  // Branco puro (R: 1.0, G: 1.0, B: 1.0)
+        GLfloat low_shininess[] = {25.0};
+        GLfloat no_mat[] = {0.0, 0.0, 0.0, 0.0};
+        glMaterialfv(GL_FRONT, GL_AMBIENT, dark_brown_mat);
+        glMaterialfv(GL_FRONT, GL_DIFFUSE, dark_brown_mat);
+        glMaterialfv(GL_FRONT, GL_SPECULAR, white_mat);
+        glMaterialfv(GL_FRONT, GL_SHININESS, low_shininess);
+        glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
+      glTranslatef(5.0f, 0.0f, 7.0f);
+      glScalef(5,20,5);
+      // glColor3f(1.0f, 0.0f, 0.0f);
+      glutSolidCube(OBJETO_ALTURA * 0.5);
+    glPopMatrix();
+
+    glPushMatrix();
+      glPushMatrix();
+        GLUquadricObj* quadric = gluNewQuadric();
+        gluQuadricDrawStyle(quadric, GLU_FILL);  // Preencher a esfera
+        gluQuadricNormals(quadric, GLU_SMOOTH);  // Utilizar normais suaves
       glPopMatrix();
+      
+      glPushMatrix();
+          GLfloat green_mat[] = {0.0, 1.0, 0.0, 1.0};  // Verde claro (R: 0.0, G: 1.0, B: 0.0)
+          GLfloat dark_green_mat[] = {0.0, 0.2, 0.0, 1.0};  // Sombra verde escura (R: 0.0, G: 0.2, B: 0.0)
+          glMaterialfv(GL_FRONT, GL_AMBIENT, green_mat);
+          glMaterialfv(GL_FRONT, GL_DIFFUSE, green_mat);
+          glMaterialfv(GL_FRONT, GL_SPECULAR, dark_green_mat);
+          glMaterialfv(GL_FRONT, GL_SHININESS, low_shininess);
+          glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
+        glPushMatrix();
+          glTranslatef(5.0f, 3.0f, 7.0f);
+          // glColor3f(0.0f, 1.0f, 0.0f);
+          gluSphere(quadric, 1.5, 20, 20);  // Desenhar uma esfera 
+        glPopMatrix();
+        glPushMatrix();
+          glTranslatef(5.0f, 5.0f, 7.0f);
+          // glColor3f(0.0f, 1.0f, 0.0f);
+          gluSphere(quadric, 1.25, 20, 20);  // Desenhar uma esfera 
+        glPopMatrix();
+      glPopMatrix();  
+
+  glPopMatrix();
+    glDisable(GL_LIGHTING);
+}
+
+void desenhaMoeda(){
+
+  static GLfloat rotation = 0.0f;  // Angle of rotation for the camera direction
+
+  glEnable(GL_LIGHTING);
+  glPushMatrix();
+    GLfloat gold_mat[] = {0.8, 0.6, 0.0, 1.0};  // Gold color (R: 0.8, G: 0.6, B: 0.0)
+    GLfloat white_mat[] = {1.0, 1.0, 1.0, 1.0};  // White color (R: 1.0, G: 1.0, B: 1.0)
+    GLfloat low_shininess[] = {25.0};
+    GLfloat no_mat[] = {0.0, 0.0, 0.0, 0.0};
+    glMaterialfv(GL_FRONT, GL_AMBIENT, gold_mat);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, gold_mat);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, white_mat);
+    glMaterialfv(GL_FRONT, GL_SHININESS, low_shininess);
+    glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
+    
+    GLUquadricObj* quadric = gluNewQuadric();
+    gluQuadricDrawStyle(quadric, GLU_FILL);  // Fill the sphere
+    gluQuadricNormals(quadric, GLU_SMOOTH);  // Use smooth normals
+    
+    glPushMatrix();
+      // glTranslatef(9.0f, 3.0f, 0.0f);  // Set the position of the coin
+        glRotatef(rotation, 1.0f, 0.0f, 1.0f); // Rotate around the y-axis
+
+      gluSphere(quadric, 1.0, 10, 10);  // Draw a sphere as the coin
     glPopMatrix();
   glPopMatrix();
+
+
+  rotation += 5.0f; // Increase the rotation angle
+  if (rotation >= 360.0f) {
+    rotation -= 360.0f; // Reset the rotation angle if it exceeds 360 degrees
+  }
+  glDisable(GL_LIGHTING);
 
 }
 void drawmodel(GLuint texID)
 {
     if (!pmodel) {
-        pmodel = glmReadOBJ("C:/Github/Multimedia1/template_projeto/data/mario.obj");
+        pmodel = glmReadOBJ("C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/mario.obj");
         //C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/mario.obj
         // C:/Github/Multimedia1/template_projeto/data/porsche.obj
         //C:/Github/Multimedia1/template_projeto/data/mario.obj
@@ -465,6 +569,22 @@ void desenhaChao(GLfloat dimensao, GLuint texID)
     }
     
 }
+
+void output(GLfloat x, GLfloat y, char *format, ...)
+{
+  va_list args;
+  char buffer[200], *p;
+
+  va_start(args, format);
+  vsprintf(buffer, format, args);
+  va_end(args);
+  glPushMatrix();
+    glTranslatef(x, y, 0);
+    for (p = buffer; *p; p++)
+      glutStrokeCharacter(GLUT_STROKE_ROMAN, *p);
+  glPopMatrix();
+}
+
 void createDisplayLists(int janelaID)
 {
 	modelo.mapa[janelaID]=glGenLists(1);
@@ -562,6 +682,18 @@ void displayNavigateSubwindow()
     //       glDisable(GL_LIGHTING);
     // glPopMatrix();
     // }
+          
+          glPushMatrix();
+            glTranslatef(10.0f,1.5f,4.0f);
+            desenhaMoeda();
+            
+          glPopMatrix();
+
+
+
+
+
+
 
         
           GLfloat light_pos[] = { 0.0, 2.0, -1.0, 0.0 };
@@ -570,13 +702,25 @@ void displayNavigateSubwindow()
           {
                glPushMatrix();
               glTranslatef(posCubos[i],0,posCuboZ[i]);
-              desenhaModelo(modelo.texID[2][ID_TEXTURA_CAIXA]);  
- 
-              glPopMatrix();     
-                    glPushMatrix();
-                      desenhaArvore();
-                glPopMatrix();   
+              desenhaModelo(modelo.texID[1][ID_TEXTURA_CAIXA]);
+              glPopMatrix();  
           }
+
+          
+
+          for (int i = 0; i < qntyCubos; i++)
+          {
+            glPushMatrix();
+              glTranslatef(i*10,0,posCuboZ[i]);
+              desenhaArvore();
+            glPopMatrix();   
+            glPushMatrix();
+              glTranslatef(i*10,0,posCuboZ[i]);
+              desenhaArvore2();
+            glPopMatrix();
+          }
+
+
 
 
      
@@ -616,6 +760,28 @@ void displayNavigateSubwindow()
 
 
   }
+
+
+
+// glPushAttrib(GL_ENABLE_BIT);
+// glDisable(GL_DEPTH_TEST);
+// glDisable(GL_LIGHTING);
+
+// glMatrixMode(GL_PROJECTION);
+// glPushMatrix(); // Salva o estado atual da matriz de projeção
+// glLoadIdentity();
+// gluOrtho2D(0, 3000, 0, 3000);
+
+// glMatrixMode(GL_MODELVIEW);
+// glPushMatrix(); // Salva o estado atual da matriz de visualização
+// glLoadIdentity();
+// output(2000, 2800, "Pontuacao: ");
+
+// glPopMatrix(); // Restaura a matriz de visualização para o estado anterior
+// glMatrixMode(GL_PROJECTION);
+// glPopMatrix(); // Restaura a matriz de projeção para o estado anterior
+
+// glPopAttrib();
 
 	glutSwapBuffers();
 }
@@ -711,15 +877,16 @@ void timer(int value)
        modelo.objeto.pos.z = 0.0f;
         // printf("continha %d",tamChao-(CHAO_DIMENSAO*countM)+(CHAO_DIMENSAO/5));
         modelo.objeto.pos.x = tamChao-(CHAO_DIMENSAO*countM)-(CHAO_DIMENSAO*0.9);
+        estado.teclas.s=GL_FALSE;
         incrementador=0;
   }
   else if(modelo.objeto.pos.x > posCubos[incrementador]){
     incrementador++;
-    printf("incrementador %d\n",incrementador);
-    printf("modelo.objeto.pos.x: %f\n", modelo.objeto.pos.x);
-printf("posCubos[incrementador]: %d\n", posCubos[incrementador]);
-printf("modelo.objeto.pos.z: %f\n", modelo.objeto.pos.z);
-printf("posCuboZ[incrementador]: %d\n", posCuboZ[incrementador]);
+//     printf("incrementador %d\n",incrementador);
+//     printf("modelo.objeto.pos.x: %f\n", modelo.objeto.pos.x);
+// printf("posCubos[incrementador]: %d\n", posCubos[incrementador]);
+// printf("modelo.objeto.pos.z: %f\n", modelo.objeto.pos.z);
+// printf("posCuboZ[incrementador]: %d\n", posCuboZ[incrementador]);
   }
 
   
@@ -731,7 +898,7 @@ printf("posCuboZ[incrementador]: %d\n", posCuboZ[incrementador]);
 
   modelo.prev = curr;
 
-  if(estado.teclas.up)
+  if(estado.teclas.s)
   {
     andar=GL_TRUE;
     modelo.objeto.pos.x+=velocidade*cos(RAD(modelo.objeto.dir));
@@ -774,11 +941,12 @@ printf("posCuboZ[incrementador]: %d\n", posCuboZ[incrementador]);
     // printf("pos %f %f\n",modelo.objeto.pos.x,modelo.objeto.pos.z);
 
     }
-         if(modelo.objeto.pos.z <= -2.7f || modelo.objeto.pos.z >= 3.69f || modelo.objeto.pos.x <= tamChao-(CHAO_DIMENSAO*countM)-(CHAO_DIMENSAO)){
+         if(modelo.objeto.pos.z <= -2.7f || modelo.objeto.pos.z >= 3.69f){
         modelo.objeto.pos.z = 0.0f;
         incrementador=0;
         // printf("continha %d",tamChao-(CHAO_DIMENSAO*countM)+(CHAO_DIMENSAO/5));
         modelo.objeto.pos.x = tamChao-(CHAO_DIMENSAO*countM)-(CHAO_DIMENSAO*0.9);
+        estado.teclas.s=GL_FALSE;
       }
 
   if(estado.teclas.a){
@@ -878,7 +1046,11 @@ void key(unsigned char key, int x, int y)
     case 'd':
     case 'D':
         estado.teclas.d = GL_TRUE;
-        break;        
+        break;     
+    case 's':
+    case 'S':
+        estado.teclas.s = GL_TRUE;
+        break;   
 	}
 
   if (DEBUG)
