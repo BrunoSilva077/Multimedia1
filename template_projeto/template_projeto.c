@@ -43,18 +43,23 @@
 #define LIMITE_ESQUERDA		      -2.7f
 #define LIMITE_DIREITA		      3.69f
 
-#define NOME_TEXTURA_CHAO     "C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/Tileable-Road-Texture.ppm"
+#define NOME_TEXTURA_CHAO     "C:/Github/Multimedia1/template_projeto/data/Tileable-Road-Texture.ppm"
 // "C:\\Users\\User\\Desktop\\UFP\\Git-Hub\\Multimedia1\\template_projeto\\data\\Tileable-Road-Texture.ppm"
 // C:/Github/Multimedia1/template_projeto/data/Tileable-Road-Texture.ppm    
-#define MARIO "C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/textures/mariotex.ppm"
+#define MARIO "C:/Github/Multimedia1/template_projeto/data/textures/mariotex.ppm"
+// C:\Users\User\Desktop\UFP\Git-Hub\Multimedia1\template_projeto\data\textures\mariotex.ppm
+// C:/Github/Multimedia1/template_projeto/data/textures/mariotex.ppm
+
+#define CAIXA "C:/Github/Multimedia1/template_projeto/data/caixa.ppm"
 // C:\Users\User\Desktop\UFP\Git-Hub\Multimedia1\template_projeto\data\textures\mariotex.ppm
 // C:/Github/Multimedia1/template_projeto/data/textures/mariotex.ppm
 
 
 
-#define NUM_TEXTURAS              2
+#define NUM_TEXTURAS              3
 #define ID_TEXTURA_CHAO           0
 #define ID_TEXTURA_MARIO          1
+#define ID_TEXTURA_CAIXA          2
 
 #define	CHAO_DIMENSAO		          50
 
@@ -63,6 +68,8 @@
 #define JANELA_NAVIGATE           1
 
 #define STEP                      1
+
+#define qntyCubos                 20
 
 /**************************************
 ********** VARIÁVEIS GLOBAIS **********
@@ -113,9 +120,9 @@ typedef struct {
 Estado estado;
 Modelo modelo;
 GLMmodel* pmodel = NULL;
-GLint countM=1,tamChao=CHAO_DIMENSAO, dimensaoChao=0;
+GLint countM=1,tamChao=CHAO_DIMENSAO, qntyDeChaoGerado=qntyCubos, dimensaoChao=0;
 
-GLint posicoes[20];
+GLint posCuboZ[qntyCubos], posCubos[qntyCubos], incrementador=0;
 
 /**************************************
 ******* ILUMINAÇÃO E MATERIAIS ********
@@ -172,7 +179,7 @@ void init(void)
   estado.localViewer = 1;
   estado.vista[JANELA_TOP] = 0;
   estado.vista[JANELA_NAVIGATE] = 0;
-  modelo.objeto.pos.x = tamChao-(CHAO_DIMENSAO*countM)+(CHAO_DIMENSAO/5); //-195
+  modelo.objeto.pos.x =tamChao-(CHAO_DIMENSAO*0.9);
   modelo.objeto.pos.y = OBJETO_ALTURA * 2;
   modelo.objeto.pos.z = 0;
   modelo.objeto.dir = 0;
@@ -180,8 +187,34 @@ void init(void)
 
   modelo.xMouse = modelo.yMouse = -1;
   modelo.andar = GL_FALSE;
+int previousRandom = 0;
 
+for (int i = 0; i < 20; i++)
+{
+  // int random = (rand() % 6) + 10;
+  if(i==0){
+    posCubos[i]=10;
+  }
+  else{
+  posCubos[i] = posCubos[i-1]+ 10;
+  posCuboZ[i] = (rand() % 5) - 2;
 
+  }
+  
+}
+
+// Resto do código...
+
+// for (int i = 0; i < qntyCubos; i++)
+// {
+//   posCuboZ[i] = (rand() % 5) - 2;
+//   if(i==0){
+//     posCubos[i] += rand() % 6 + 10;
+//   }else{
+//     posCubos[i] += rand() % posCubos[i-1] + 10;
+//   }
+//   printf("teste %d : %d\n",i,posCubos[i]);
+// }
 
   glEnable(GL_DEPTH_TEST);
   glShadeModel(GL_SMOOTH);
@@ -295,44 +328,80 @@ void desenhaAngVisao(Camera *cam)
     glDisable(GL_BLEND);
 }
 
-void desenhaModelo()
+void desenhaModelo(GLuint texID)
 {
-     glColor3f(0,1,0);
-    glutSolidCube(OBJETO_ALTURA);
+    glEnable(GL_LIGHTING); // Habilita o uso de cor no material
     glPushMatrix();
-        glColor3f(1,0,0);
-        glTranslatef(-180,OBJETO_ALTURA*0.75,0);
-        glRotatef(GRAUS(estado.camera.dir_long-modelo.objeto.dir),0,1,0);
-        glutSolidCube(OBJETO_ALTURA*0.5);
+    // glColor3f(1, 0, 0)
+//    GLfloat brown_mat[] = {0.5, 0.2, 0.0, 1.0};  // Castanho claro (R: 0.5, G: 0.2, B: 0.0)
+// GLfloat white_mat[] = {1.0, 1.0, 1.0, 1.0};  // Branco puro (R: 1.0, G: 1.0, B: 1.0)
+//    GLfloat low_shininess[] = {25.0};
+//     GLfloat no_mat[] = {0.5, 0.2, 0.0, 1.0};
+// glMaterialfv(GL_FRONT, GL_AMBIENT, brown_mat);
+// glMaterialfv(GL_FRONT, GL_DIFFUSE, brown_mat);
+// glMaterialfv(GL_FRONT, GL_SPECULAR, white_mat);
+// glMaterialfv(GL_FRONT, GL_SHININESS, low_shininess);
+// glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
+
+    // glTranslatef(0, OBJETO_ALTURA * 0.75, 0);
+    glScalef(15, 15, 15);
+    // glRotatef(GRAUS(estado.camera.dir_long - modelo.objeto.dir), 0, 1, 0);
+    glBindTexture(GL_TEXTURE_2D, texID);
+    glutSolidCube(OBJETO_ALTURA * 0.5);
     glPopMatrix();
+    glDisable(GL_LIGHTING); // Habilita o uso de cor no material
 }
 
 void drawmodel(GLuint texID)
 {
     if (!pmodel) {
-        pmodel = glmReadOBJ("C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/mario.obj");
-        //C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/porsche.obj
+        pmodel = glmReadOBJ("C:/Github/Multimedia1/template_projeto/data/mario.obj");
+        //C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/mario.obj
         // C:/Github/Multimedia1/template_projeto/data/porsche.obj
+        //C:/Github/Multimedia1/template_projeto/data/mario.obj
         if (!pmodel) exit(0);
         glmUnitize(pmodel);
         glmFacetNormals(pmodel);
         glmVertexNormals(pmodel, 90.0);
-    }
+    }//nao muda para preto
+    glEnable(GL_LIGHTING);
     glPushMatrix();
+        GLfloat brown_mat[] = {0.0, 1.0, 0.0, 1.0};  // Castanho claro (R: 0.5, G: 0.2, B: 0.0)
+GLfloat white_mat[] = {0.0, 1.0, 0.0, 1.0};  // Branco puro (R: 1.0, G: 1.0, B: 1.0)
+   GLfloat low_shininess[] = {25.0};
+    GLfloat no_mat[] = {0.0, 1.0, 0.0, 1.0};
+glMaterialfv(GL_FRONT, GL_AMBIENT, brown_mat);
+glMaterialfv(GL_FRONT, GL_DIFFUSE, brown_mat);
+glMaterialfv(GL_FRONT, GL_SPECULAR, white_mat);
+glMaterialfv(GL_FRONT, GL_SHININESS, low_shininess);
+glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
     glBindTexture(GL_TEXTURE_2D, texID);
     glmDraw(pmodel, GLM_SMOOTH | GLM_MATERIAL | GLM_TEXTURE);
     glPopMatrix();
+    glDisable(GL_LIGHTING);
 }
 
 void desenhaLimitesColisao()
 {
 
   // Define a cor da linha como branco
-  glColor3f(1.0f, 0.0f, 0.0f);
-  glLineWidth(2.0f);
+  // glColor3f(1.0f, 0.0f, 0.0f);
+  glLineWidth(5.0f);
 
   glBegin(GL_LINES);
-  
+    GLfloat no_mat[] = {0.0, 0.0, 0.0, 0.0};
+GLfloat mat_ambient[] = {0.0, 0.0, 0.0, 0.0};      // Vermelho escuro para a cor ambiente
+GLfloat mat_diffuse[] = {0.0, 0.0, 0.0, 0.0};      // Vermelho médio para a cor difusa
+GLfloat mat_specular[] = {1.0, 0.0, 0.0, 1.0};     // Vermelho brilhante para a cor especular
+GLfloat no_shininess[] = {0.0};
+GLfloat low_shininess[] = {5.0};
+GLfloat high_shininess[] = {100.0};
+GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
+           glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+        glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+        glMaterialfv(GL_FRONT, GL_SPECULAR, no_mat);
+        glMaterialfv(GL_FRONT, GL_SHININESS, no_shininess);
+        glMaterialfv(GL_FRONT, GL_EMISSION, no_mat);
     // Linha da esquerda
     glVertex3f( dimensaoChao-(CHAO_DIMENSAO*countM)-(CHAO_DIMENSAO), 1.0f, LIMITE_ESQUERDA);
     glVertex3f( dimensaoChao, 1.0f, LIMITE_ESQUERDA);
@@ -351,7 +420,7 @@ void desenhaChao(GLfloat dimensao, GLuint texID)
     glColor3f(0.5f,0.5f,0.5f);
     for(i=dimensao-(CHAO_DIMENSAO*countM)-(CHAO_DIMENSAO);i<=dimensao;i+=STEP) //(CHAO_DIMENSAO/5) quanto mener o valor dividido melhor fica o chao adicionado
     {
-      for(j=-5;j<=5;j+=STEP)
+      for(j=-10;j<=10;j+=STEP)
       {
           glBegin(GL_POLYGON);
               glNormal3f(0,1,0);
@@ -423,23 +492,14 @@ void setNavigateSubwindowCamera(Camera *cam, Objeto obj)
 void displayNavigateSubwindow()
 {
 
-    GLfloat no_mat[] = {0.0, 0.0, 0.0, 1.0};
-    GLfloat mat_ambient[] = {0.7, 0.7, 0.7, 1.0};
-    GLfloat mat_ambient_color[] = {0.8, 0.8, 0.2, 1.0};
-    GLfloat mat_diffuse[] = {0.1, 0.5, 0.8, 1.0};
-    GLfloat mat_specular[] = {1.0, 1.0, 1.0, 1.0};
-    GLfloat no_shininess[] = {0.0};
-    GLfloat low_shininess[] = {5.0};
-    GLfloat high_shininess[] = {100.0};
-    GLfloat mat_emission[] = {0.3, 0.2, 0.2, 0.0};
 
-  // glClearColor(0.0f, 0.4f, 0.4f, 1.0f);
+   glClearColor(0.0f, 0.4f, 1.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 	glLoadIdentity();
 
 	setNavigateSubwindowCamera(&estado.camera, modelo.objeto);
-  // setLight();
+  setLight();
   dimensaoChao = tamChao;
   desenhaChao(tamChao,modelo.texID[0][ID_TEXTURA_CHAO]);
 	glCallList(modelo.mapa[JANELA_NAVIGATE]);
@@ -450,39 +510,45 @@ void displayNavigateSubwindow()
 	if(!estado.vista[JANELA_NAVIGATE])
   {
   
-    // GLfloat pos = -190.0f;
+    // GLfloat pos = tamChao-(CHAO_DIMENSAO*countM)-(CHAO_DIMENSAO) + 10;
     // for (int i = 0; i < 10; i++)
     // {
 
     //          glPushMatrix();
-    //         // glTranslatef(modelo.objeto.pos.x+2,modelo.objeto.pos.y+0.3,modelo.objeto.pos.z);
-    //         // glRotatef(GRAUS(modelo.objeto.dir),0,1,0);
-    //         // glRotatef(90,0,1,0);
+    //         glTranslatef(modelo.objeto.pos.x+2,modelo.objeto.pos.y+0.3,modelo.objeto.pos.z);
+    //         glRotatef(GRAUS(modelo.objeto.dir),0,1,0);
+    //         glRotatef(90,0,1,0);
     //       glEnable(GL_LIGHTING);
 
     //       GLfloat light_pos2[] = { 0.0, 2.0, -1.0, 0.0 };
     //       glLightfv(GL_LIGHT0, GL_POSITION, light_pos2);
 
-    //           // glTranslatef(pos, posicoes[0], 0.0);
+    //           glTranslatef(pos, posicoes[0], 0.0);
 
              
-    //       // desenhaModelo(pos,posicoes[i]);
+    //       desenhaModelo(pos,posicoes[i]);
     //           // printf("posicao %d\n",posicoes[i]);
 
     //       pos += 10;
-    //       // printf("posicao %f\n",pos);
+    //        printf("posicao %f\n",pos);
           
     //       glDisable(GL_LIGHTING);
     // glPopMatrix();
     // }
 
-           glPushMatrix();
+        
           GLfloat light_pos[] = { 0.0, 2.0, -1.0, 0.0 };
           glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
+          for (int i = 0; i < qntyCubos; i++)
+          {
+               glPushMatrix();
+              glTranslatef(posCubos[i],0,posCuboZ[i]);
+              desenhaModelo(modelo.texID[2][ID_TEXTURA_CAIXA]);  
+                glPopMatrix();     
+          }
 
-          desenhaModelo();  
 
-        glPopMatrix();      
+     
 
     glPushMatrix();
         glTranslatef(modelo.objeto.pos.x,modelo.objeto.pos.y+0.3,modelo.objeto.pos.z);
@@ -503,6 +569,7 @@ void displayNavigateSubwindow()
           // glMaterialfv(GL_FRONT, GL_SHININESS, no_shininess);
           // glMaterialfv(GL_FRONT, GL_EMISSION, no_mat); 
           drawmodel(modelo.texID[0][ID_TEXTURA_MARIO]);
+          // drawmodel();
 
         glPopMatrix();
 
@@ -602,6 +669,30 @@ void timer(int value)
     tamChao=tamChao+(CHAO_DIMENSAO*countM);
   }
   
+//  printf("modelo.objeto.pos.x: %f\n", modelo.objeto.pos.x);
+// printf("posCubos[incrementador]: %f\n", posCubos[incrementador]);
+// printf("modelo.objeto.pos.z: %f\n", modelo.objeto.pos.z);
+// printf("posCuboZ[incrementador]: %f\n", posCuboZ[incrementador]);
+  // printf("inc %f\n",posCubos[incrementador]);
+  printf("pos %f\n",modelo.objeto.pos.x);
+   if  ((modelo.objeto.pos.x <= posCubos[incrementador]+1 && modelo.objeto.pos.x >= posCubos[incrementador]-1) &&
+   (( modelo.objeto.pos.z >= posCuboZ[incrementador]-1 && modelo.objeto.pos.z <= posCuboZ[incrementador]+1)))
+  {
+       modelo.objeto.pos.z = 0.0f;
+        // printf("continha %d",tamChao-(CHAO_DIMENSAO*countM)+(CHAO_DIMENSAO/5));
+        modelo.objeto.pos.x = tamChao-(CHAO_DIMENSAO*countM)-(CHAO_DIMENSAO*0.9);
+        incrementador=0;
+  }
+  else if(modelo.objeto.pos.x > posCubos[incrementador]){
+    incrementador++;
+    printf("incrementador %d\n",incrementador);
+    printf("modelo.objeto.pos.x: %f\n", modelo.objeto.pos.x);
+printf("posCubos[incrementador]: %d\n", posCubos[incrementador]);
+printf("modelo.objeto.pos.z: %f\n", modelo.objeto.pos.z);
+printf("posCuboZ[incrementador]: %d\n", posCuboZ[incrementador]);
+  }
+
+  
   // printf("pos %f\n",modelo.objeto.pos.x);
   glutTimerFunc(estado.timer, timer, 0);
   /* Acções do temporizador ...
@@ -655,7 +746,8 @@ void timer(int value)
     }
          if(modelo.objeto.pos.z <= -2.7f || modelo.objeto.pos.z >= 3.69f || modelo.objeto.pos.x <= tamChao-(CHAO_DIMENSAO*countM)-(CHAO_DIMENSAO)){
         modelo.objeto.pos.z = 0.0f;
-        printf("continha %d",tamChao-(CHAO_DIMENSAO*countM)+(CHAO_DIMENSAO/5));
+        incrementador=0;
+        // printf("continha %d",tamChao-(CHAO_DIMENSAO*countM)+(CHAO_DIMENSAO/5));
         modelo.objeto.pos.x = tamChao-(CHAO_DIMENSAO*countM)-(CHAO_DIMENSAO*0.9);
       }
 
@@ -867,8 +959,8 @@ void specialKeyUp(int key, int x, int y)
 
 void createTextures(GLuint texID[])
 {
-    unsigned char *image = NULL, *image2 = NULL;
-    int w, h, bpp,w2,h2,bpp2;
+    unsigned char *image = NULL, *image2 = NULL, *image3 = NULL;
+    int w, h,w2,h2,w3,h3;
 
     glGenTextures(NUM_TEXTURAS,texID);
 
@@ -898,6 +990,18 @@ void createTextures(GLuint texID[])
         printf("Textura %s não encontrada \n",MARIO);
         exit(0);
     }
+      image3 = glmReadPPM(CAIXA, &w3, &h3);
+    if(image3)
+    {
+        glBindTexture(GL_TEXTURE_2D, texID[ID_TEXTURA_CAIXA]);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST );
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+        gluBuild2DMipmaps(GL_TEXTURE_2D, 3, w3, h3, GL_RGB, GL_UNSIGNED_BYTE, image3);
+    }else{
+        printf("Textura %s não encontrada \n",CAIXA);
+        exit(0);
+    }
 
 }
 
@@ -916,12 +1020,6 @@ int main(int argc, char **argv)
 
   imprime_ajuda();
       srand(time(NULL));
-
-  for (int i = 0; i < 10; i++)
-  {
-   posicoes[i] = rand() % 7 - 2;  // Gera valores de -2 a 4
-       printf("%d ", posicoes[i]);
-  }
   
 
   // Registar callbacks do GLUT da janela principal
