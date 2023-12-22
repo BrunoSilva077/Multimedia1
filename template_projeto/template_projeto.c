@@ -43,14 +43,14 @@
 #define LIMITE_ESQUERDA		      -2.7f
 #define LIMITE_DIREITA		      3.69f
 
-#define NOME_TEXTURA_CHAO     "C:/Github/Multimedia1/template_projeto/data/Tileable-Road-Texture.ppm"
+#define NOME_TEXTURA_CHAO     "C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/Tileable-Road-Texture.ppm"
 // "C:\\Users\\User\\Desktop\\UFP\\Git-Hub\\Multimedia1\\template_projeto\\data\\Tileable-Road-Texture.ppm"
 // C:/Github/Multimedia1/template_projeto/data/Tileable-Road-Texture.ppm    
-#define MARIO "C:/Github/Multimedia1/template_projeto/data/textures/mariotex.ppm"
+#define MARIO "C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/textures/mariotex.ppm"
 // C:\Users\User\Desktop\UFP\Git-Hub\Multimedia1\template_projeto\data\textures\mariotex.ppm
 // C:/Github/Multimedia1/template_projeto/data/textures/mariotex.ppm
 
-#define CAIXA "C:/Github/Multimedia1/template_projeto/data/caixa.ppm"
+#define CAIXA "C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/caixa.ppm"
 // C:\Users\User\Desktop\UFP\Git-Hub\Multimedia1\template_projeto\data\textures\mariotex.ppm
 // C:/Github/Multimedia1/template_projeto/data/textures/mariotex.ppm
 
@@ -179,7 +179,7 @@ void init(void)
   estado.localViewer = 1;
   estado.vista[JANELA_TOP] = 0;
   estado.vista[JANELA_NAVIGATE] = 0;
-  modelo.objeto.pos.x =700;
+  modelo.objeto.pos.x =5;
   // tamChao-(CHAO_DIMENSAO*0.9)
   modelo.objeto.pos.y = OBJETO_ALTURA * 2;
   modelo.objeto.pos.z = 0;
@@ -198,7 +198,7 @@ for (int i = 0; i < 50; i++)
   }
   else{
   posCubos[i] = posCubos[i-1]+ 15;
-  posCuboZ[i] = (rand() % 5) - 2;
+  posCuboZ[i] = (rand() % 4) - 1;
 
   }
   
@@ -488,7 +488,7 @@ void desenhaMoeda(){
 void drawmodel(GLuint texID)
 {
     if (!pmodel) {
-        pmodel = glmReadOBJ("C:/Github/Multimedia1/template_projeto/data/mario.obj");
+        pmodel = glmReadOBJ("C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/mario.obj");
         //C:/Users/User/Desktop/UFP/Git-Hub/Multimedia1/template_projeto/data/mario.obj
         //C:/Github/Multimedia1/template_projeto/data/mario.obj
         if (!pmodel) exit(0);
@@ -694,7 +694,7 @@ void displayNavigateSubwindow()
           for (int i = 0; i < qntyCubos; i++){
                glPushMatrix();
               glTranslatef(posCubos[i],0,posCuboZ[i]);
-              desenhaModelo(modelo.texID[1][ID_TEXTURA_CAIXA]);
+              desenhaModelo(modelo.texID[2][ID_TEXTURA_CAIXA]);
               glPopMatrix();  
           }
 
@@ -860,38 +860,41 @@ void timer(int value)
     estado.teclas.s=GL_FALSE;
     estado.teclas.left=GL_FALSE;
     estado.teclas.right=GL_FALSE;
+    estado.teclas.up=GL_FALSE;
+    estado.teclas.down=GL_FALSE;
   }
 
   if(modelo.objeto.pos.x + (CHAO_DIMENSAO)>=tamChao){
     countM=2;
     tamChao=tamChao+(CHAO_DIMENSAO*countM);
   }
- printf("modelo.objeto.pos.x: %f\n", modelo.objeto.pos.x);
+//  printf("modelo.objeto.pos.x: %f\n", modelo.objeto.pos.x);
 // printf("posCubos[incrementador]: %f\n", posCubos[incrementador]);
 // printf("modelo.objeto.pos.z: %f\n", modelo.objeto.pos.z);
 // printf("posCuboZ[incrementador]: %f\n", posCuboZ[incrementador]);
   // printf("inc %f\n",posCuboZ[incrementador]);
-  // printf("pos %f\n",modelo.objeto.pos.x);
-//    if  ((modelo.objeto.pos.x <= posCubos[incrementador]+1 && modelo.objeto.pos.x >= posCubos[incrementador]-1) &&
-//    (( modelo.objeto.pos.z >= posCuboZ[incrementador]-2.0f && modelo.objeto.pos.z <= posCuboZ[incrementador]+2.0f)))
-//   {
-//        modelo.objeto.pos.z = 0.0f;
-//         // printf("continha %d",tamChao-(CHAO_DIMENSAO*countM)+(CHAO_DIMENSAO/5));
-//         tamChao=CHAO_DIMENSAO;
-//         countM=1;
-//         modelo.objeto.pos.x = tamChao-(CHAO_DIMENSAO*0.9);
-//         estado.teclas.s=GL_FALSE;
-//         incrementador=0;
-//         printf("pos %f\n",modelo.objeto.pos.x);
-//   }
-//   else if(modelo.objeto.pos.x > posCubos[incrementador]){
-//     incrementador++;
-// //     printf("incrementador %d\n",incrementador);
-// //     printf("modelo.objeto.pos.x: %f\n", modelo.objeto.pos.x);
-// // printf("posCubos[incrementador]: %d\n", posCubos[incrementador]);
-// // printf("modelo.objeto.pos.z: %f\n", modelo.objeto.pos.z);
-// // printf("posCuboZ[incrementador]: %d\n", posCuboZ[incrementador]);
-//   }
+  printf("pos %f %f\n",modelo.objeto.pos.x,modelo.objeto.pos.z);
+
+   if  ((modelo.objeto.pos.x <= posCubos[incrementador]+1.7 && modelo.objeto.pos.x >= posCubos[incrementador]-1.7) &&
+   (( modelo.objeto.pos.z >= posCuboZ[incrementador]-2 && modelo.objeto.pos.z <= posCuboZ[incrementador]+2)))
+  {
+       modelo.objeto.pos.z = 0.0f;
+        // printf("continha %d",tamChao-(CHAO_DIMENSAO*countM)+(CHAO_DIMENSAO/5));
+        tamChao=CHAO_DIMENSAO;
+        countM=1;
+        modelo.objeto.pos.x = tamChao-(CHAO_DIMENSAO*0.9);
+        estado.teclas.s=GL_FALSE;
+        incrementador=0;
+        // printf("pos %f\n",modelo.objeto.pos.x);
+  }
+  else if(modelo.objeto.pos.x > posCubos[incrementador]+1.7){
+    incrementador++;
+//     printf("incrementador %d\n",incrementador);
+//     printf("modelo.objeto.pos.x: %f\n", modelo.objeto.pos.x);
+// printf("posCubos[incrementador]: %d\n", posCubos[incrementador]);
+// printf("modelo.objeto.pos.z: %f\n", modelo.objeto.pos.z);
+// printf("posCuboZ[incrementador]: %d\n", posCuboZ[incrementador]);
+  }
 
   
   // printf("pos %f\n",modelo.objeto.pos.x);
@@ -945,7 +948,7 @@ void timer(int value)
     // printf("pos %f %f\n",modelo.objeto.pos.x,modelo.objeto.pos.z);
 
     }
-         if(modelo.objeto.pos.z <= -2.7f || modelo.objeto.pos.z >= 3.69f){
+         if(modelo.objeto.pos.z <= -2.45f || modelo.objeto.pos.z >= 3.3f){
         modelo.objeto.pos.z = 0.0f;
         incrementador=0;
         tamChao=CHAO_DIMENSAO;
