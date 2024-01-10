@@ -603,17 +603,6 @@ void createDisplayLists(int janelaID)
 void setNavigateSubwindowCamera(Camera *cam, Objeto obj)
 {
   Posicao center;
-  /*
-    if(estado.vista[JANELA_NAVIGATE])
-    {
-  */
-    // cam->eye.x=obj.pos.x-2;
-    // cam->eye.y=obj.pos.y+.9;
-    // cam->eye.z=obj.pos.z;
-    // center.x=obj.pos.x;
-    // center.y=obj.pos.y+.9;
-    // center.z=obj.pos.z;
-
     // Ajustar a distância da câmera diretamente no cálculo
     GLfloat distanceFromObject = 3.0f;
     cam->eye.x = obj.pos.x - distanceFromObject * cos(cam->dir_long );
@@ -624,22 +613,12 @@ void setNavigateSubwindowCamera(Camera *cam, Objeto obj)
     center.x = obj.pos.x;
     center.y = obj.pos.y + 1.5f;
     center.z = obj.pos.z;
-
-  /*
-    }
-    else
-    {
-
-    }
-  */
   gluLookAt(cam->eye.x,cam->eye.y,cam->eye.z,center.x,center.y,center.z,0,1,0);
 }
 
 
 void displayNavigateSubwindow()
 {
-
-
    glClearColor(0.0f, 0.4f, 1.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
@@ -656,32 +635,6 @@ void displayNavigateSubwindow()
       
 	if(!estado.vista[JANELA_NAVIGATE])
   {
-  
-    // GLfloat pos = tamChao-(CHAO_DIMENSAO*countM)-(CHAO_DIMENSAO) + 10;
-    // for (int i = 0; i < 10; i++)
-    // {
-
-    //          glPushMatrix();
-    //         glTranslatef(modelo.objeto.pos.x+2,modelo.objeto.pos.y+0.3,modelo.objeto.pos.z);
-    //         glRotatef(GRAUS(modelo.objeto.dir),0,1,0);
-    //         glRotatef(90,0,1,0);
-    //       glEnable(GL_LIGHTING);
-
-    //       GLfloat light_pos2[] = { 0.0, 2.0, -1.0, 0.0 };
-    //       glLightfv(GL_LIGHT0, GL_POSITION, light_pos2);
-
-    //           glTranslatef(pos, posicoes[0], 0.0);
-
-             
-    //       desenhaModelo(pos,posicoes[i]);
-    //           // printf("posicao %d\n",posicoes[i]);
-
-    //       pos += 10;
-    //        printf("posicao %f\n",pos);
-          
-    //       glDisable(GL_LIGHTING);
-    // glPopMatrix();
-    // }
           
           glPushMatrix();
             glTranslatef(780.0f+mudaXBola,1.5f,0.0f);
@@ -716,11 +669,7 @@ void displayNavigateSubwindow()
         glTranslatef(modelo.objeto.pos.x,modelo.objeto.pos.y+0.3,modelo.objeto.pos.z);
         glRotatef(GRAUS(modelo.objeto.dir),0,1,0);
         glRotatef(90, 1, 0, 0);
-        
         glEnable(GL_LIGHTING);
-
-  
-
         glPushMatrix();
           glRotatef(-180, 1, 0, 0);
 
@@ -734,41 +683,9 @@ void displayNavigateSubwindow()
           // drawmodel();
 
         glPopMatrix();
-
-
-
         glDisable(GL_LIGHTING);
-
-
-        
-        
     glPopMatrix();
-     
-
-
   }
-
-
-
-// glPushAttrib(GL_ENABLE_BIT);
-// glDisable(GL_DEPTH_TEST);
-// glDisable(GL_LIGHTING);
-
-// glMatrixMode(GL_PROJECTION);
-// glPushMatrix(); // Salva o estado atual da matriz de projeção
-// glLoadIdentity();
-// gluOrtho2D(0, 3000, 0, 3000);
-
-// glMatrixMode(GL_MODELVIEW);
-// glPushMatrix(); // Salva o estado atual da matriz de visualização
-// glLoadIdentity();
-// output(2000, 2800, "Pontuacao: ");
-
-// glPopMatrix(); // Restaura a matriz de visualização para o estado anterior
-// glMatrixMode(GL_PROJECTION);
-// glPopMatrix(); // Restaura a matriz de projeção para o estado anterior
-
-// glPopAttrib();
 
 	glutSwapBuffers();
 }
@@ -873,19 +790,17 @@ void timer(int value)
 // printf("modelo.objeto.pos.z: %f\n", modelo.objeto.pos.z);
 // printf("posCuboZ[incrementador]: %f\n", posCuboZ[incrementador]);
   // printf("inc %f\n",posCuboZ[incrementador]);
-  printf("pos %f %f\n",modelo.objeto.pos.x,modelo.objeto.pos.z);
+  // printf("pos %f %f\n",modelo.objeto.pos.x,modelo.objeto.pos.z);
 
    if  ((modelo.objeto.pos.x <= posCubos[incrementador]+1.7 && modelo.objeto.pos.x >= posCubos[incrementador]-1.7) &&
    (( modelo.objeto.pos.z >= posCuboZ[incrementador]-2 && modelo.objeto.pos.z <= posCuboZ[incrementador]+2)))
   {
        modelo.objeto.pos.z = 0.0f;
-        // printf("continha %d",tamChao-(CHAO_DIMENSAO*countM)+(CHAO_DIMENSAO/5));
         tamChao=CHAO_DIMENSAO;
         countM=1;
         modelo.objeto.pos.x = tamChao-(CHAO_DIMENSAO*0.9);
         estado.teclas.s=GL_FALSE;
         incrementador=0;
-        // printf("pos %f\n",modelo.objeto.pos.x);
   }
   else if(modelo.objeto.pos.x > posCubos[incrementador]+1.7){
     incrementador++;
@@ -896,8 +811,6 @@ void timer(int value)
 // printf("posCuboZ[incrementador]: %d\n", posCuboZ[incrementador]);
   }
 
-  
-  // printf("pos %f\n",modelo.objeto.pos.x);
   glutTimerFunc(estado.timer, timer, 0);
   /* Acções do temporizador ...
      Não colocar aqui primitivas OpenGL de desenho glBegin, glEnd, etc.
@@ -905,7 +818,7 @@ void timer(int value)
 
   modelo.prev = curr;
 
-  if(estado.teclas.up)
+  if(estado.teclas.s)
   {
     andar=GL_TRUE;
     modelo.objeto.pos.x+=velocidade*cos(RAD(modelo.objeto.dir));
@@ -920,65 +833,28 @@ void timer(int value)
 	
    if(estado.teclas.left){
     // rodar camara e objeto
-    
-
-      // modelo.objeto.dir += OBJETO_ROTACAO;
-      // estado.camera.dir_long += EYE_ROTACAO;
-      
-
-    // printf("dir left: %f %f\\", modelo.objeto.dir, estado.camera.dir_long);
-
-    
-    // modelo.objeto.pos.x -=0.5;
     modelo.objeto.pos.z -=0.1;
- 
   }
     if(estado.teclas.right){
-    // rodar camara e 
-    
-      // modelo.objeto.dir -= OBJETO_ROTACAO;
-      // estado.camera.dir_long -= EYE_ROTACAO;
-    
-
-    
-    // printf("dir rigth: %f %f\n", modelo.objeto.dir, estado.camera.dir_long);
-
-    // modelo.objeto.pos.x +=0.5;
     modelo.objeto.pos.z +=0.1;
-    // printf("pos %f %f\n",modelo.objeto.pos.x,modelo.objeto.pos.z);
-
     }
          if(modelo.objeto.pos.z <= -2.45f || modelo.objeto.pos.z >= 3.3f){
         modelo.objeto.pos.z = 0.0f;
         incrementador=0;
         tamChao=CHAO_DIMENSAO;
         countM=1;
-        // printf("continha %d",tamChao-(CHAO_DIMENSAO*countM)+(CHAO_DIMENSAO/5));
         modelo.objeto.pos.x = tamChao-(CHAO_DIMENSAO*0.9);
         estado.teclas.s=GL_FALSE;
       }
 
   if(estado.teclas.a){
     estado.camera.dir_long += EYE_ROTACAO;
-    // modelo.objeto.dir += 2 *OBJETO_ROTACAO;
-
-    printf("dir left: %f %f\n", estado.camera.dir_long, modelo.objeto.dir);
-
-    // estado.camera.eye.x -= 0.1;
-    // estado.camera.eye.z -= 0.1;
-
-    
+    // printf("dir left: %f %f\n", estado.camera.dir_long, modelo.objeto.dir);
   }
 
   if(estado.teclas.d){
     estado.camera.dir_long -= EYE_ROTACAO;
-          // modelo.objeto.dir -= OBJETO_ROTACAO;
-
-    printf("dir rigth: %f %f\n",  estado.camera.dir_long, modelo.objeto.dir);
-
-    // estado.camera.eye.x += 0.1;
-    // estado.camera.eye.z += 0.1;
-    
+    // printf("dir rigth: %f %f\n",  estado.camera.dir_long, modelo.objeto.dir);
   }
 
 
@@ -1109,10 +985,10 @@ void specialKey(int key, int x, int y)
 
   switch (key) {
 		case GLUT_KEY_UP: 
-      estado.teclas.up =GL_TRUE;
+      estado.teclas.up =GL_FALSE;
 			break;
 		case GLUT_KEY_DOWN: 
-      estado.teclas.down =GL_TRUE;
+      estado.teclas.down =GL_FALSE;
 			break;
 		case GLUT_KEY_LEFT: 
       estado.teclas.left =GL_TRUE;
